@@ -16,10 +16,10 @@ defmodule ExPfds.BST do
   @spec empty() :: empty_bst
   def empty, do: @empty
 
-  @spec node(any()) :: nonempty_bst
-  def node(value), do: node(@empty, value, @empty)
-  @spec node(bst, any(), bst) :: nonempty_bst
-  def node(left, value, right) do
+  @spec build(any()) :: nonempty_bst
+  def build(value), do: build(@empty, value, @empty)
+  @spec build(bst, any(), bst) :: nonempty_bst
+  def build(left, value, right) do
     {left, value, right}
   end
 
@@ -29,4 +29,16 @@ defmodule ExPfds.BST do
   defp inorder({left, value, right}, acc) do
     inorder(right, [value | inorder(left, acc)])
   end
+
+  @spec insert(bst(), any()) :: bst()
+  def insert(@empty, new_value) do
+    build(new_value)
+  end
+  def insert({left, value, right}, new_value) when new_value < value do
+    build(insert(left, new_value), value, right)
+  end
+  def insert({left, value, right}, new_value) when new_value > value do
+    build(left, value, insert(right, new_value))
+  end
+  def insert(bst, _), do: bst
 end
