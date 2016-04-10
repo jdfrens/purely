@@ -1,5 +1,6 @@
 defmodule ExPfds.BSTTest do
   use ExUnit.Case, async: true
+  use ExCheck
 
   alias ExPfds.BST
 
@@ -48,5 +49,12 @@ defmodule ExPfds.BSTTest do
       |> BST.insert(46)
       |> BST.insert(23)
     assert BST.inorder(bst) == [23, 46, 92]
+  end
+
+  property :insert do
+    for_all xs in list(int) do
+      bst = Enum.reduce(xs, BST.empty, fn x, acc -> BST.insert(acc, x) end)
+      BST.inorder(bst) == Enum.uniq(Enum.sort(xs))
+    end
   end
 end

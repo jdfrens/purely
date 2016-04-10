@@ -15,6 +15,10 @@ defmodule ExPfds.Mixfile do
   end
 
   defp deps do
-    [{:dialyxir, "~> 0.3", only: [:dev]}]
+    [
+      {:dialyxir, "~> 0.3", only: [:dev]},
+      {:excheck, "~> 0.3", only: :test},
+      {:triq, github: "krestenkrab/triq", only: :test}
+    ]
   end
 end
