@@ -18,9 +18,9 @@ defmodule ExPfds.BST do
   def empty, do: @empty
 
   @spec build(key_value) :: nonempty_bst
-  def build(kv), do: build(@empty, kv, @empty)
+  defp build(kv), do: build(@empty, kv, @empty)
   @spec build(bst, key_value, bst) :: nonempty_bst
-  def build(l, kv, r), do: {l, kv, r}
+  defp build(l, kv, r), do: {l, kv, r}
 
   @spec inorder(bst()) :: list(any())
   def inorder(bst), do: inorder(bst, []) |> Enum.reverse
