@@ -46,4 +46,28 @@ defmodule ExPfds.BST do
   # TODO: put_new_lazy(bst, key, fun)
 
   defp flipped_put({key, val}, bst), do: put(bst, key, val)
+
+  def get(bst, key), do: get(bst, key, nil)
+  def get(@empty, _, default), do: default
+  def get({l, {k, _}, _}, key, default) when key < k do
+    get(l, key, default)
+  end
+  def get({_, {k, _}, r}, key, default) when k < key do
+    get(r, key, default)
+  end
+  def get({_, {_, v}, _}, _, _), do: v
+  # TODO: get_lazy(map, key, fun)
+
+  def has_key?(@empty, _), do: false
+  def has_key?({l, {k, _}, _}, key) when key < k do
+    has_key?(l, key)
+  end
+  def has_key?({_, {k, _}, r}, key) when k < key do
+    has_key?(r, key)
+  end
+  def has_key?(_, _), do: true
+
+  def keys(bst) do
+    inorder(bst) |> Enum.map(fn {k,_} -> k end)
+  end
 end
