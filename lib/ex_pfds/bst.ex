@@ -14,8 +14,12 @@ defmodule ExPfds.BST do
 
   @empty {}
 
-  @spec empty() :: empty_bst
-  def empty, do: @empty
+  @spec new() :: empty_bst
+  def new, do: @empty
+  def new(enumerable) do
+    Enum.reduce(enumerable, new, &flipped_put/2)
+  end
+  # TODO: new(enumerable, transform)
 
   @spec build(key_value) :: nonempty_bst
   defp build(kv), do: build(@empty, kv, @empty)
@@ -29,13 +33,17 @@ defmodule ExPfds.BST do
     inorder(r, [kv | inorder(l, acc)])
   end
 
-  @spec insert(bst(), key_value()) :: bst()
-  def insert(@empty, new_kv), do: build(new_kv)
-  def insert({l, {k,v}, r}, {nk,nv}) when nk < k do
-    build(insert(l, {nk,nv}), {k,v}, r)
+  @spec put(bst(), any(), any()) :: bst()
+  def put(@empty, key, val), do: build({key, val})
+  def put({l, {k, v}, r}, key, val) when key < k do
+    build(put(l, key, val), {k,v}, r)
   end
-  def insert({l, {k,v}, r}, {nk,nv}) when k < nk do
-    build(l, {k,v}, insert(r, {nk,nv}))
+  def put({l, {k,v}, r}, key, val) when k < key do
+    build(l, {k, v}, put(r, key, val))
   end
-  def insert(bst, {_,_}), do: bst
+  def put(bst, _key, _val), do: bst
+  # TODO: put_new(bst, key, val)
+  # TODO: put_new_lazy(bst, key, fun)
+
+  defp flipped_put({key, val}, bst), do: put(bst, key, val)
 end
