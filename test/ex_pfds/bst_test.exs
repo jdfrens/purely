@@ -39,7 +39,7 @@ defmodule ExPfds.BSTTest do
   end
 
   property :put do
-    for_all xs in list(int) do
+    for_all xs in list(int(1, 5000)) do
       xs = Enum.zip(xs, xs)
       bst = BST.new(xs)
       BST.inorder(bst) == Enum.uniq(Enum.sort(xs))
@@ -48,23 +48,23 @@ defmodule ExPfds.BSTTest do
 
   @tag iterations: 20
   property "found with .get" do
-    for_all ks in non_empty(list(pos_integer)) do
-      vs = Enum.map(ks, fn k -> "#{k} val" end)
+    for_all ks in non_empty(list(int(1, 5000))) do
+      vs = Enum.map(ks, fn k -> k*9 end)
       bst = BST.new(Enum.zip(ks, vs))
-      probes = ks |> Enum.take(5)
+      probes = random_probes(ks)
       for_all k in elements(probes) do
-        BST.get(bst, k) == "#{Integer.to_string(k)} val"
+        BST.get(bst, k) == k*9
       end
     end
   end
 
   @tag iterations: 20
   property "not found with .get" do
-    for_all ks in non_empty(list(pos_integer)) do
-      vs = Enum.map(ks, fn k -> "#{k} val" end)
+    for_all ks in non_empty(list(int(1, 5000))) do
+      vs = Enum.map(ks, fn k -> k*20 end)
       bst = BST.new(Enum.zip(ks, vs))
       neg_ks = Enum.map(ks, &(-1*&1))
-      probes = neg_ks |> Enum.take(5)
+      probes = random_probes(neg_ks)
       for_all k in elements(probes) do
         BST.get(bst, k, k * 5) == k * 5
       end
@@ -73,10 +73,10 @@ defmodule ExPfds.BSTTest do
 
   @tag iterations: 20
   property "found with .has_key?" do
-    for_all ks in non_empty(list(pos_integer)) do
-      vs = Enum.map(ks, fn k -> "#{k} val" end)
+    for_all ks in non_empty(list(int(1, 5000))) do
+      vs = Enum.map(ks, fn k -> k*3 end)
       bst = BST.new(Enum.zip(ks, vs))
-      probes = ks |> Enum.take(5)
+      probes = random_probes(ks)
       for_all k in elements(probes) do
         BST.has_key?(bst, k) == true
       end
@@ -85,11 +85,11 @@ defmodule ExPfds.BSTTest do
 
   @tag iterations: 20
   property "not found with .has_key?" do
-    for_all ks in non_empty(list(pos_integer)) do
-      vs = Enum.map(ks, fn k -> "#{k} val" end)
+    for_all ks in non_empty(list(int(1, 5000))) do
+      vs = Enum.map(ks, fn k -> k*10 end)
       bst = BST.new(Enum.zip(ks, vs))
       neg_ks = Enum.map(ks, &(-1*&1))
-      probes = neg_ks |> Enum.shuffle |> Enum.take(5)
+      probes = random_probes(neg_ks)
       for_all k in elements(probes) do
         BST.has_key?(bst, k) == false
       end
@@ -97,10 +97,33 @@ defmodule ExPfds.BSTTest do
   end
 
   property :keys do
-    for_all ks in non_empty(list(pos_integer)) do
-      vs = Enum.map(ks, fn k -> "#{k} val" end)
+    for_all ks in non_empty(list(int(1, 5000))) do
+      vs = Enum.map(ks, fn k -> k end)
       bst = BST.new(Enum.zip(ks, vs))
       BST.keys(bst) == Enum.uniq(Enum.sort(ks))
     end
+  end
+
+  @tag iterations: 20
+  property :delete do
+    for_all ks in non_empty(list(int(1, 5000))) do
+      vs = Enum.map(ks, fn k -> k*88 end)
+      xxbst = BST.new(Enum.zip(ks, vs))
+      probes = random_probes(ks)
+      bst = Enum.reduce(probes, xxbst, fn k, acc -> BST.delete(acc, k) end)
+      for_all k in elements(probes) do
+        BST.has_key?(bst, k) == false
+      end
+    end
+  end
+
+  test "delete fills in the deleted node" do
+    keys = [5, 3, 2, 4, 7, 6, 8]
+    bst = BST.new(Enum.zip(keys, keys)) |> BST.delete(5)
+    assert BST.keys(bst) == [2, 3, 4, 6, 7, 8]
+  end
+
+  def random_probes(keys, count \\ 5) do
+    keys |> Enum.shuffle |> Enum.take(count)
   end
 end

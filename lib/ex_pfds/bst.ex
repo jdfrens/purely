@@ -70,4 +70,30 @@ defmodule ExPfds.BST do
   def keys(bst) do
     inorder(bst) |> Enum.map(fn {k,_} -> k end)
   end
+
+  def delete(@empty, _), do: @empty
+  def delete({l, {k, v}, r}, key) when key < k do
+    build(delete(l, key), {k,v}, r)
+  end
+  def delete({l, {k,v}, r}, key) when k < key do
+    build(l, {k, v}, delete(r, key))
+  end
+  def delete({l, {_,_}, r}, _) do
+    case promote_leftmost(r) do
+      {:nothing}          -> l
+      {:ok, newkv, new_r} -> build(l, newkv, new_r)
+    end
+  end
+
+  # Purely a structural traversal to remove and return the leftmost
+  # key-value.  This leftmost key-value will replace a recently
+  # removed key.
+  defp promote_leftmost(@empty), do: {:nothing}
+  defp promote_leftmost({@empty, kv, r}) do
+    {:ok, kv, r}
+  end
+  defp promote_leftmost({l, kv, r}) do
+    {:ok, newkv, new_l} = promote_leftmost(l)
+    {:ok, newkv, build(new_l, kv, r)}
+  end
 end
