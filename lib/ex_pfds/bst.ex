@@ -35,13 +35,16 @@ defmodule ExPfds.BST do
 
   @spec put(bst(), any(), any()) :: bst()
   def put(@empty, key, val), do: build({key, val})
-  def put({l, {k, v}, r}, key, val) when key < k do
-    build(put(l, key, val), {k,v}, r)
+  def put({l, {k, v}, r}=bst, key, val) do
+    cond do
+      key < k ->
+        build(put(l, key, val), {k,v}, r)
+      k < key ->
+        build(l, {k, v}, put(r, key, val))
+      true ->
+        bst
+    end
   end
-  def put({l, {k,v}, r}, key, val) when k < key do
-    build(l, {k, v}, put(r, key, val))
-  end
-  def put(bst, _key, _val), do: bst
   # TODO: put_new(bst, key, val)
   # TODO: put_new_lazy(bst, key, fun)
 
@@ -49,51 +52,58 @@ defmodule ExPfds.BST do
 
   def get(bst, key), do: get(bst, key, nil)
   def get(@empty, _, default), do: default
-  def get({l, {k, _}, _}, key, default) when key < k do
-    get(l, key, default)
+  def get({l, {k, v}, r}, key, default) do
+    cond do
+      key < k ->
+        get(l, key, default)
+      k < key ->
+        get(r, key, default)
+      true ->
+        v
+    end
   end
-  def get({_, {k, _}, r}, key, default) when k < key do
-    get(r, key, default)
-  end
-  def get({_, {_, v}, _}, _, _), do: v
   # TODO: get_lazy(map, key, fun)
 
   def has_key?(@empty, _), do: false
-  def has_key?({l, {k, _}, _}, key) when key < k do
-    has_key?(l, key)
+  def has_key?({l, {k, _}, r}, key) do
+    cond do
+      key < k ->
+        has_key?(l, key)
+      k < key ->
+        has_key?(r, key)
+      true ->
+        true
+    end
   end
-  def has_key?({_, {k, _}, r}, key) when k < key do
-    has_key?(r, key)
-  end
-  def has_key?(_, _), do: true
 
   def keys(bst) do
     inorder(bst) |> Enum.map(fn {k,_} -> k end)
   end
 
   def delete(@empty, _), do: @empty
-  def delete({l, {k, v}, r}, key) when key < k do
-    build(delete(l, key), {k,v}, r)
-  end
-  def delete({l, {k,v}, r}, key) when k < key do
-    build(l, {k, v}, delete(r, key))
-  end
-  def delete({l, {_,_}, r}, _) do
-    case promote_leftmost(r) do
-      {:nothing}          -> l
-      {:ok, newkv, new_r} -> build(l, newkv, new_r)
+  def delete({l, {k, v}, r}, key) do
+    cond do
+      key < k ->
+        build(delete(l, key), {k,v}, r)
+      k < key ->
+        build(l, {k, v}, delete(r, key))
+      true ->
+        promote_leftmost(l, r)
     end
   end
 
-  # Purely a structural traversal to remove and return the leftmost
-  # key-value.  This leftmost key-value will replace a recently
-  # removed key.
-  defp promote_leftmost(@empty), do: {:nothing}
-  defp promote_leftmost({@empty, kv, r}) do
-    {:ok, kv, r}
+  @doc """
+  Purely a structural traversal to remove and return the leftmost
+  key-value.  This leftmost key-value will replace a recently removed
+  key.  `sibling` is the left sibling of the deleted node and will be
+  left sibling of new node.
+  """
+  defp promote_leftmost(sibling, @empty), do: sibling
+  defp promote_leftmost(sibling, {@empty, kv, r}) do
+    build(sibling, kv, r)
   end
-  defp promote_leftmost({l, kv, r}) do
-    {:ok, newkv, new_l} = promote_leftmost(l)
-    {:ok, newkv, build(new_l, kv, r)}
+  defp promote_leftmost(sibling, {l, kv, r}) do
+    {sibling, newkv, new_l} = promote_leftmost(sibling, l)
+    build(sibling, newkv, build(new_l, kv, r))
   end
 end
