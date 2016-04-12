@@ -92,7 +92,7 @@ defmodule ExPfds.BST do
     end
   end
 
-  @doc """
+  @docp """
   Purely a structural traversal to remove and return the leftmost
   key-value.  This leftmost key-value will replace a recently removed
   key.  `sibling` is the left sibling of the deleted node and will be
