@@ -3,44 +3,30 @@ defmodule ExPfds.BST do
   Implementation of a purely functional binary search tree.
   """
 
-  @typedoc """
-  An empty tuple for an empty tree; a three-tuple (left, value, right)
-  for a general node.
-  """
-  @type key_value :: {any, any}
-  @type empty_bst :: {}
-  @type nonempty_bst :: {bst, key_value, bst}
-  @type bst :: empty_bst | nonempty_bst
-
   @empty {}
 
-  @spec new() :: empty_bst
   def new, do: @empty
   def new(enumerable) do
     Enum.reduce(enumerable, new, &flipped_put/2)
   end
   # TODO: new(enumerable, transform)
 
-  @spec build(key_value) :: nonempty_bst
-  defp build(kv), do: build(@empty, kv, @empty)
-  @spec build(bst, key_value, bst) :: nonempty_bst
-  defp build(l, kv, r), do: {l, kv, r}
+  defp build(kv), do: build(kv, @empty, @empty)
+  defp build(kv, l, r), do: {kv, l, r}
 
-  @spec inorder(bst()) :: list(any())
-  def inorder(bst), do: inorder(bst, []) |> Enum.reverse
+  def inorder(bst), do: Enum.reverse(inorder(bst, []))
   defp inorder(@empty, acc), do: acc
-  defp inorder({l, kv, r}, acc) do
+  defp inorder({kv, l, r}, acc) do
     inorder(r, [kv | inorder(l, acc)])
   end
 
-  @spec put(bst(), any(), any()) :: bst()
   def put(@empty, key, val), do: build({key, val})
-  def put({l, {k, v}, r}=bst, key, val) do
+  def put({{k, v}, l, r}=bst, key, val) do
     cond do
       key < k ->
-        build(put(l, key, val), {k,v}, r)
+        build({k,v}, put(l, key, val), r)
       k < key ->
-        build(l, {k, v}, put(r, key, val))
+        build({k, v}, l, put(r, key, val))
       true ->
         bst
     end
@@ -52,7 +38,7 @@ defmodule ExPfds.BST do
 
   def get(bst, key), do: get(bst, key, nil)
   def get(@empty, _, default), do: default
-  def get({l, {k, v}, r}, key, default) do
+  def get({{k, v}, l, r}, key, default) do
     cond do
       key < k ->
         get(l, key, default)
@@ -65,7 +51,7 @@ defmodule ExPfds.BST do
   # TODO: get_lazy(map, key, fun)
 
   def has_key?(@empty, _), do: false
-  def has_key?({l, {k, _}, r}, key) do
+  def has_key?({{k, _}, l, r}, key) do
     cond do
       key < k ->
         has_key?(l, key)
@@ -81,12 +67,12 @@ defmodule ExPfds.BST do
   end
 
   def delete(@empty, _), do: @empty
-  def delete({l, {k, v}, r}, key) do
+  def delete({{k, v}, l, r}, key) do
     cond do
       key < k ->
-        build(delete(l, key), {k,v}, r)
+        build({k,v}, delete(l, key), r)
       k < key ->
-        build(l, {k, v}, delete(r, key))
+        build({k,v}, l, delete(r, key))
       true ->
         promote_leftmost(l, r)
     end
@@ -99,11 +85,11 @@ defmodule ExPfds.BST do
   left sibling of new node.
   """
   defp promote_leftmost(sibling, @empty), do: sibling
-  defp promote_leftmost(sibling, {@empty, kv, r}) do
-    build(sibling, kv, r)
+  defp promote_leftmost(sibling, {kv, @empty, r}) do
+    build(kv, sibling, r)
   end
-  defp promote_leftmost(sibling, {l, kv, r}) do
-    {sibling, newkv, new_l} = promote_leftmost(sibling, l)
-    build(sibling, newkv, build(new_l, kv, r))
+  defp promote_leftmost(sibling, {kv, l, r}) do
+    {newkv, sibling, new_l} = promote_leftmost(sibling, l)
+    build(newkv, sibling, build(kv, new_l, r))
   end
 end
