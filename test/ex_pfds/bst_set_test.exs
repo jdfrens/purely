@@ -1,5 +1,6 @@
 defmodule ExPfds.BSTSetTest do
   use ExUnit.Case, async: true
+  use ExCheck
 
   alias ExPfds.BSTSet
 
@@ -20,6 +21,13 @@ defmodule ExPfds.BSTSetTest do
   test "put duplicates" do
     set = BSTSet.new |> BSTSet.put(3) |> BSTSet.put(3) |> BSTSet.put(3)
     assert BSTSet.to_list(set) == [3]
+  end
+
+  property :put do
+    for_all xs in list(int(1, 5000)) do
+      set = BSTSet.new(xs)
+      BSTSet.to_list(set) == Enum.uniq(Enum.sort(xs))
+    end
   end
 
   test "not a member" do
