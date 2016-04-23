@@ -1,20 +1,9 @@
 defmodule ExPfds.LeftistHeap do
-  @empty {}
 
-  def new do
-    @empty
-  end
-  def new(enumerable) do
-    Enum.reduce(enumerable, new, &(put(&2,&1)))
-  end
+  @empty {}
+  use ExPfds.Heap
 
   def empty?(h), do: h == @empty
-
-  def sort(h), do: sort(h, [])
-  defp sort(@empty, mins), do: Enum.reverse(mins)
-  defp sort(h, mins) do
-    sort(remove_min(h), [min(h) | mins])
-  end
 
   def put(h, value) do
     merge(build(value), h)
