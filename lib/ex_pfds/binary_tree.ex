@@ -1,6 +1,10 @@
 defmodule ExPfds.BinaryTree do
   @empty {}
 
+  @type empty :: {}
+  @type t :: empty | {term, t, t}
+
+  @spec right_spine(t, (term -> term)) :: term
   def right_spine(tree, fun \\ &(&1)), do: right_spine(tree, fun, [])
   defp right_spine(@empty, _, spine), do: Enum.reverse(spine)
   defp right_spine({v, _, r}, fun, spine) do

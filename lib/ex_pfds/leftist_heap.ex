@@ -1,7 +1,10 @@
 defmodule ExPfds.LeftistHeap do
-
   @empty {}
-  use ExPfds.Heap
+
+  @type empty :: ExPfds.BST.empty
+  @type t :: empty | ExPfds.BST.t
+
+  use ExPfds.Heap, empty_type: __MODULE__.empty, type: __MODULE__.t
 
   def empty?(h), do: h == @empty
 
@@ -29,7 +32,8 @@ defmodule ExPfds.LeftistHeap do
   defp rank(@empty), do: 0
   defp rank({{rank, _}, _, _}), do: rank
 
-  defp build(v, l \\ @empty, r \\ @empty) do
+  defp build(v), do: build(v, @empty, @empty)
+  defp build(v, l, r) do
     cond do
       rank(l) >= rank(r) ->
         {{rank(r) + 1, v}, l, r}

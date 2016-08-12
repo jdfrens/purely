@@ -5,7 +5,12 @@ defmodule ExPfds.BST do
 
   @empty {}
 
+  @type empty :: ExPfds.BinaryTree.empty
+  @type t :: empty | ExPfds.BinaryTree.t
+
+  @spec new() :: empty
   def new, do: @empty
+  @spec new(Enum.t) :: t
   def new(enumerable) do
     Enum.reduce(enumerable, new, &flipped_put/2)
   end
@@ -14,12 +19,14 @@ defmodule ExPfds.BST do
   defp build(kv), do: build(kv, @empty, @empty)
   defp build(kv, l, r), do: {kv, l, r}
 
+  @spec inorder(t) :: [term]
   def inorder(bst), do: Enum.reverse(inorder(bst, []))
   defp inorder(@empty, acc), do: acc
   defp inorder({kv, l, r}, acc) do
     inorder(r, [kv | inorder(l, acc)])
   end
 
+  @spec put(t, term, term) :: t
   def put(@empty, key, val), do: build({key, val})
   def put({{k, v}, l, r}=bst, key, val) do
     cond do
@@ -36,6 +43,7 @@ defmodule ExPfds.BST do
 
   defp flipped_put({key, val}, bst), do: put(bst, key, val)
 
+  @spec get(t, term) :: term
   def get(bst, key), do: get(bst, key, nil)
   def get(@empty, _, default), do: default
   def get({{k, v}, l, r}, key, default) do
@@ -50,6 +58,7 @@ defmodule ExPfds.BST do
   end
   # TODO: get_lazy(map, key, fun)
 
+  @spec has_key?(t, term) :: boolean
   def has_key?(@empty, _), do: false
   def has_key?({{k, _}, l, r}, key) do
     cond do
@@ -62,10 +71,12 @@ defmodule ExPfds.BST do
     end
   end
 
+  @spec keys(t) :: [term]
   def keys(bst) do
     inorder(bst) |> Enum.map(fn {k,_} -> k end)
   end
 
+  @spec delete(t, term) :: t
   def delete(@empty, _), do: @empty
   def delete({{k, v}, l, r}, key) do
     cond do

@@ -1,22 +1,30 @@
 defmodule ExPfds.BSTSet do
   alias ExPfds.BST
 
+  @type empty :: ExPfds.BST.empty
+  @type t :: empty | ExPfds.BST.t
+
+  @spec new() :: empty
   def new do
     BST.new
   end
+  @spec new(Enum.t) :: t
   def new(enumerable) do
     Enum.reduce(enumerable, BST.new, &(put(&2,&1)))
   end
   # TODO: new(enumerable, transform)
 
+  @spec put(t, term) :: t
   def put(set, value) do
     BST.put(set, value, value)
   end
 
+  @spec member?(t, term) :: boolean
   def member?(set, value) do
     BST.has_key?(set, value)
   end
 
+  @spec to_list(t) :: [term]
   def to_list(set) do
     BST.keys(set)
   end

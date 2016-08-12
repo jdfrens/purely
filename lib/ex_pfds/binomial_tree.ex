@@ -1,8 +1,14 @@
 defmodule ExPfds.BinomialTree do
+
+  @type singleton :: {0, term, []}
+  @type t :: singleton | {integer, term, [t]}
+
+  @spec new(term) :: singleton
   def new(value) do
     {0, value, []}
   end
 
+  @spec link(t, t) :: t
   def link({r, v1, c1}=t1, {_, v2, c2}=t2) do
     if v1 <= v2 do
       {r+1, v1, [t2 | c1]}
@@ -11,6 +17,7 @@ defmodule ExPfds.BinomialTree do
     end
   end
 
+  @spec put([t], t) :: [t]
   def put([], t), do: [t]
   def put([first | rest]=all, t) do
     if rank(t) < rank(first) do
@@ -20,5 +27,6 @@ defmodule ExPfds.BinomialTree do
     end
   end
 
+  @spec rank(t) :: integer
   def rank({r, _, _}), do: r
 end
