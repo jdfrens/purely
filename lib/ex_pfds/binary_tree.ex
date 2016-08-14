@@ -4,10 +4,10 @@ defmodule ExPfds.BinaryTree do
   @type empty :: {}
   @type t :: empty | {term, t, t}
 
-  @spec right_spine(t, (term -> term)) :: term
-  def right_spine(tree, fun \\ &(&1)), do: right_spine(tree, fun, [])
-  defp right_spine(@empty, _, spine), do: Enum.reverse(spine)
-  defp right_spine({v, _, r}, fun, spine) do
-    right_spine(r, fun, [fun.(v) | spine])
-  end
+  @doc """
+  Counts the number of nodes along the right spine of a binary tree.
+  """
+  @spec length_right_spine(t) :: non_neg_integer
+  def length_right_spine(@empty), do: 0
+  def length_right_spine({_, _, r}), do: 1 + length_right_spine(r)
 end

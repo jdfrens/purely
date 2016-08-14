@@ -15,7 +15,7 @@ defmodule ExPfds.LeftistHeapTest do
   property "put and right spine" do
     for_all xs in list(int) do
       h = LeftistHeap.new(xs)
-      spine_length = length(BinaryTree.right_spine(h))
+      spine_length = BinaryTree.length_right_spine(h)
       max_spine_length = :math.log2(length(xs)+1)
       spine_length <= max_spine_length
     end
