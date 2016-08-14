@@ -1,8 +1,9 @@
 defmodule ExPfds.BSTTest do
+  alias ExPfds.BST
+
   use ExUnit.Case, async: true
   use ExCheck
-
-  alias ExPfds.BST
+  doctest BST
 
   test "inorder traversal of empty tree" do
     assert BST.inorder(BST.new) == []

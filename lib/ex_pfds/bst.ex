@@ -1,6 +1,8 @@
 defmodule ExPfds.BST do
   @moduledoc """
-  Implementation of a purely functional binary search tree.
+  Purely functional implementation of a binary search tree (BST).
+
+  Each node in the binary tree stores a key and a value.
   """
 
   @empty {}
@@ -8,8 +10,16 @@ defmodule ExPfds.BST do
   @type empty :: ExPfds.BinaryTree.empty
   @type t :: empty | ExPfds.BinaryTree.t
 
+  @doc """
+  Returns an empty BST.
+  """
   @spec new() :: empty
   def new, do: @empty
+
+  @doc """
+  Returns a BST with all of the key-value pairs from `enumerable` added
+  to it.
+  """
   @spec new(Enum.t) :: t
   def new(enumerable) do
     Enum.reduce(enumerable, new, &flipped_put/2)
@@ -19,13 +29,20 @@ defmodule ExPfds.BST do
   defp build(kv), do: build(kv, @empty, @empty)
   defp build(kv, l, r), do: {kv, l, r}
 
-  @spec inorder(t) :: [term]
+  @doc """
+  Returns a list of the key-value pairs in the tree in order, sorted
+  by key.
+  """
+  @spec inorder(t) :: [{term, term}]
   def inorder(bst), do: Enum.reverse(inorder(bst, []))
   defp inorder(@empty, acc), do: acc
   defp inorder({kv, l, r}, acc) do
     inorder(r, [kv | inorder(l, acc)])
   end
 
+  @doc """
+  Adds a key mapped to a value to the BST.
+  """
   @spec put(t, term, term) :: t
   def put(@empty, key, val), do: build({key, val})
   def put({{k, v}, l, r}=bst, key, val) do
@@ -43,8 +60,18 @@ defmodule ExPfds.BST do
 
   defp flipped_put({key, val}, bst), do: put(bst, key, val)
 
+  @doc """
+  Returns the value mapped to the given key; if the key is not found,
+  then `nil` is returned.
+  """
   @spec get(t, term) :: term
   def get(bst, key), do: get(bst, key, nil)
+
+  @doc """
+  Returns the value mapped to the given key; if the key is not found,
+  then the specified default value is returned.
+  """
+  @spec get(t, term, term) :: term
   def get(@empty, _, default), do: default
   def get({{k, v}, l, r}, key, default) do
     cond do
@@ -58,6 +85,9 @@ defmodule ExPfds.BST do
   end
   # TODO: get_lazy(map, key, fun)
 
+  @doc """
+  Returns true if the key is in the BST, false otherwise.
+  """
   @spec has_key?(t, term) :: boolean
   def has_key?(@empty, _), do: false
   def has_key?({{k, _}, l, r}, key) do
@@ -71,11 +101,17 @@ defmodule ExPfds.BST do
     end
   end
 
+  @doc """
+  Returns the keys in the BST in order.
+  """
   @spec keys(t) :: [term]
   def keys(bst) do
     inorder(bst) |> Enum.map(fn {k,_} -> k end)
   end
 
+  @doc """
+  Deletes the given key (and its value) from the BST.
+  """
   @spec delete(t, term) :: t
   def delete(@empty, _), do: @empty
   def delete({{k, v}, l, r}, key) do
