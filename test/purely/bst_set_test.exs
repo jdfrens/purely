@@ -1,8 +1,8 @@
-defmodule ExPfds.BSTSetTest do
+defmodule Purely.BSTSetTest do
   use ExUnit.Case, async: true
   use ExCheck
 
-  alias ExPfds.BSTSet
+  alias Purely.BSTSet
 
   test "to_list of empty set" do
     assert BSTSet.to_list(BSTSet.new) == []

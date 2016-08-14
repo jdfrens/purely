@@ -1,5 +1,5 @@
-defmodule ExPfds.BSTTest do
-  alias ExPfds.BST
+defmodule Purely.BSTTest do
+  alias Purely.BST
 
   use ExUnit.Case, async: true
   use ExCheck

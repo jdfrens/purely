@@ -1,10 +1,12 @@
-defmodule ExPfds.LeftistHeap do
+defmodule Purely.LeftistHeap do
+  alias Purely.BST
+
+  @type empty :: BST.empty
+  @type t :: empty | BST.t
+
   @empty {}
 
-  @type empty :: ExPfds.BST.empty
-  @type t :: empty | ExPfds.BST.t
-
-  use ExPfds.Heap, empty_type: __MODULE__.empty, type: __MODULE__.t
+  use Purely.Heap, empty_type: __MODULE__.empty, type: __MODULE__.t
 
   def empty?(h), do: h == @empty
 

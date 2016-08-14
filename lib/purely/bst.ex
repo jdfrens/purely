@@ -1,4 +1,4 @@
-defmodule ExPfds.BST do
+defmodule Purely.BST do
   @moduledoc """
   Purely functional implementation of a binary search tree (BST).
 
@@ -7,8 +7,8 @@ defmodule ExPfds.BST do
 
   @empty {}
 
-  @type empty :: ExPfds.BinaryTree.empty
-  @type t :: empty | ExPfds.BinaryTree.t
+  @type empty :: Purely.BinaryTree.empty
+  @type t :: empty | Purely.BinaryTree.t
 
   @doc """
   Returns an empty BST.

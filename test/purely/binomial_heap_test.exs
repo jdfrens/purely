@@ -1,8 +1,8 @@
-defmodule ExPfds.BinomialHeapTest do
+defmodule Purely.BinomialHeapTest do
   use ExUnit.Case, async: true
   use ExCheck
 
-  alias ExPfds.BinomialHeap
+  alias Purely.BinomialHeap
 
   property :new do
     for_all xs in list(int) do

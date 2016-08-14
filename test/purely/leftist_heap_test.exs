@@ -1,9 +1,9 @@
-defmodule ExPfds.LeftistHeapTest do
+defmodule Purely.LeftistHeapTest do
   use ExUnit.Case, async: true
   use ExCheck
 
-  alias ExPfds.LeftistHeap
-  alias ExPfds.BinaryTree
+  alias Purely.LeftistHeap
+  alias Purely.BinaryTree
 
   property :put do
     for_all xs in list(int) do

@@ -1,8 +1,8 @@
-defmodule ExPfds.Mixfile do
+defmodule Purely.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :ex_pfds,
+    [app: :purely,
      version: "0.0.1",
      elixir: "~> 1.2",
      build_embedded: Mix.env == :prod,

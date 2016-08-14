@@ -1,4 +1,4 @@
-defmodule ExPfds do
+defmodule Purely do
   @moduledoc """
   Elixir implementation of purely functional data structures as
   described in [_Purely Functional Data

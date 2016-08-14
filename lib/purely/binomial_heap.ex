@@ -1,12 +1,12 @@
-defmodule ExPfds.BinomialHeap do
+defmodule Purely.BinomialHeap do
   @empty []
 
   @type empty :: []
-  @type t :: empty | [ExPfds.BinomialTree.t]
+  @type t :: empty | [Purely.BinomialTree.t]
 
-  use ExPfds.Heap, empty_type: __MODULE__.empty, type: __MODULE__.t
+  use Purely.Heap, empty_type: __MODULE__.empty, type: __MODULE__.t
 
-  alias ExPfds.BinomialTree
+  alias Purely.BinomialTree
 
   @spec put(t, term) :: t
   def put(bheap, v) do

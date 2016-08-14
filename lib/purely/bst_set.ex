@@ -1,8 +1,8 @@
-defmodule ExPfds.BSTSet do
-  alias ExPfds.BST
+defmodule Purely.BSTSet do
+  alias Purely.BST
 
-  @type empty :: ExPfds.BST.empty
-  @type t :: empty | ExPfds.BST.t
+  @type empty :: BST.empty
+  @type t :: empty | BST.t
 
   @spec new() :: empty
   def new do

@@ -10,11 +10,11 @@ use Mix.Config
 
 # You can configure for your application as:
 #
-#     config :ex_pfds, key: :value
+#     config :purely, key: :value
 #
 # And access this configuration in your application as:
 #
-#     Application.get_env(:ex_pfds, :key)
+#     Application.get_env(:purely, :key)
 #
 # Or configure a 3rd-party app:
 #

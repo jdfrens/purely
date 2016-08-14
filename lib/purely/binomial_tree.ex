@@ -1,4 +1,4 @@
-defmodule ExPfds.BinomialTree do
+defmodule Purely.BinomialTree do
 
   @type singleton :: {0, term, []}
   @type t :: singleton | {integer, term, [t]}

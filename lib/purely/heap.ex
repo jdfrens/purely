@@ -1,4 +1,4 @@
-defmodule ExPfds.Heap do
+defmodule Purely.Heap do
   defmacro __using__(empty_type: empty_type, type: type) do
     quote do
       @spec new() :: unquote(empty_type)

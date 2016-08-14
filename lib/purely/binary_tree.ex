@@ -1,4 +1,4 @@
-defmodule ExPfds.BinaryTree do
+defmodule Purely.BinaryTree do
   @moduledoc """
   Basic operations for a basic binary tree.
   """

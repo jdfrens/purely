@@ -1,6 +1,6 @@
-defmodule ExPfdsTest do
+defmodule PurelyTest do
   use ExUnit.Case
-  doctest ExPfds
+  doctest Purely
 
   test "the truth" do
     assert 1 + 1 == 2
