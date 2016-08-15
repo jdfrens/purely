@@ -2,7 +2,6 @@ defmodule Purely.BSTTest do
   alias Purely.BST
 
   use ExUnit.Case, async: true
-  use ExCheck
   doctest BST
 
   test "inorder traversal of empty tree" do
@@ -39,81 +38,163 @@ defmodule Purely.BSTTest do
     assert BST.inorder(bst) == [{-2,-2}, {3,3}, {6,6}, {7,7}, {9,9}, {10,10}, {11,11}]
   end
 
-  property :put do
-    for_all xs in list(int(1, 5000)) do
-      xs = Enum.zip(xs, xs)
-      bst = BST.new(xs)
-      BST.inorder(bst) == Enum.uniq(Enum.sort(xs))
-    end
-  end
+  describe "ExCheck" do
+    use ExCheck
 
-  @tag iterations: 20
-  property "found with .get" do
-    for_all ks in non_empty(list(int(1, 5000))) do
-      vs = Enum.map(ks, fn k -> k*9 end)
-      bst = BST.new(Enum.zip(ks, vs))
-      probes = random_probes(ks)
-      for_all k in elements(probes) do
-        BST.get(bst, k) == k*9
+    property :put do
+      for_all xs in list(int(1, 5000)) do
+        xs = Enum.zip(xs, xs)
+        bst = BST.new(xs)
+        BST.inorder(bst) == Enum.uniq(Enum.sort(xs))
+      end
+    end
+
+    @tag iterations: 20
+    property "found with .get" do
+      for_all ks in non_empty(list(int(1, 5000))) do
+        vs = Enum.map(ks, fn k -> k*9 end)
+        bst = BST.new(Enum.zip(ks, vs))
+        probes = random_probes(ks)
+        for_all k in elements(probes) do
+          BST.get(bst, k) == k*9
+        end
+      end
+    end
+
+    @tag iterations: 20
+    property "not found with .get" do
+      for_all ks in non_empty(list(int(1, 5000))) do
+        vs = Enum.map(ks, fn k -> k*20 end)
+        bst = BST.new(Enum.zip(ks, vs))
+        neg_ks = Enum.map(ks, &(-1*&1))
+        probes = random_probes(neg_ks)
+        for_all k in elements(probes) do
+          BST.get(bst, k, k * 5) == k * 5
+        end
+      end
+    end
+
+    @tag iterations: 20
+    property "found with .has_key?" do
+      for_all ks in non_empty(list(int(1, 5000))) do
+        vs = Enum.map(ks, fn k -> k*3 end)
+        bst = BST.new(Enum.zip(ks, vs))
+        probes = random_probes(ks)
+        for_all k in elements(probes) do
+          BST.has_key?(bst, k) == true
+        end
+      end
+    end
+
+    @tag iterations: 20
+    property "not found with .has_key?" do
+      for_all ks in non_empty(list(int(1, 5000))) do
+        vs = Enum.map(ks, fn k -> k*10 end)
+        bst = BST.new(Enum.zip(ks, vs))
+        neg_ks = Enum.map(ks, &(-1*&1))
+        probes = random_probes(neg_ks)
+        for_all k in elements(probes) do
+          BST.has_key?(bst, k) == false
+        end
+      end
+    end
+
+    property :keys do
+      for_all ks in non_empty(list(int(1, 5000))) do
+        vs = Enum.map(ks, fn k -> k end)
+        bst = BST.new(Enum.zip(ks, vs))
+        BST.keys(bst) == Enum.uniq(Enum.sort(ks))
+      end
+    end
+
+    @tag iterations: 20
+    property :delete do
+      for_all ks in non_empty(list(int(1, 5000))) do
+        vs = Enum.map(ks, fn k -> k*88 end)
+        xxbst = BST.new(Enum.zip(ks, vs))
+        probes = random_probes(ks)
+        bst = Enum.reduce(probes, xxbst, fn k, acc -> BST.delete(acc, k) end)
+        for_all k in elements(probes) do
+          BST.has_key?(bst, k) == false
+        end
       end
     end
   end
 
-  @tag iterations: 20
-  property "not found with .get" do
-    for_all ks in non_empty(list(int(1, 5000))) do
-      vs = Enum.map(ks, fn k -> k*20 end)
-      bst = BST.new(Enum.zip(ks, vs))
-      neg_ks = Enum.map(ks, &(-1*&1))
-      probes = random_probes(neg_ks)
-      for_all k in elements(probes) do
-        BST.get(bst, k, k * 5) == k * 5
+  describe "Quixir" do
+    use Quixir
+
+    test "puts and inorder/sort" do
+      ptest xs: list(of: int(min: 1, max: 5000)) do
+        xs = Enum.zip(xs, xs)
+        bst = BST.new(xs)
+        assert BST.inorder(bst) == Enum.uniq(Enum.sort(xs))
       end
     end
-  end
 
-  @tag iterations: 20
-  property "found with .has_key?" do
-    for_all ks in non_empty(list(int(1, 5000))) do
-      vs = Enum.map(ks, fn k -> k*3 end)
-      bst = BST.new(Enum.zip(ks, vs))
-      probes = random_probes(ks)
-      for_all k in elements(probes) do
-        BST.has_key?(bst, k) == true
+    test "get values" do
+      ptest ks: list(of: int(min: 1, max: 5000), min: 1) do
+        vs = Enum.map(ks, fn k -> k*9 end)
+        bst = BST.new(Enum.zip(ks, vs))
+        probes = random_probes(ks)
+        for k <- probes do
+          assert BST.get(bst, k) == k*9
+        end
       end
     end
-  end
 
-  @tag iterations: 20
-  property "not found with .has_key?" do
-    for_all ks in non_empty(list(int(1, 5000))) do
-      vs = Enum.map(ks, fn k -> k*10 end)
-      bst = BST.new(Enum.zip(ks, vs))
-      neg_ks = Enum.map(ks, &(-1*&1))
-      probes = random_probes(neg_ks)
-      for_all k in elements(probes) do
-        BST.has_key?(bst, k) == false
+    test "not found values" do
+      ptest ks: list(of: int(min: 1, max: 5000), min: 1) do
+        vs = Enum.map(ks, fn k -> k*20 end)
+        bst = BST.new(Enum.zip(ks, vs))
+        neg_ks = Enum.map(ks, &(-1*&1))
+        probes = random_probes(neg_ks)
+        for k <- probes do
+          assert BST.get(bst, k, k * 5) == k * 5
+        end
       end
     end
-  end
 
-  property :keys do
-    for_all ks in non_empty(list(int(1, 5000))) do
-      vs = Enum.map(ks, fn k -> k end)
-      bst = BST.new(Enum.zip(ks, vs))
-      BST.keys(bst) == Enum.uniq(Enum.sort(ks))
+    test "found with has_key?" do
+      ptest ks: list(of: int(min: 1, max: 5000), min: 1) do
+        vs = Enum.map(ks, fn k -> k*3 end)
+        bst = BST.new(Enum.zip(ks, vs))
+        probes = random_probes(ks)
+        for k <- probes do
+          assert BST.has_key?(bst, k) == true
+        end
+      end
     end
-  end
 
-  @tag iterations: 20
-  property :delete do
-    for_all ks in non_empty(list(int(1, 5000))) do
-      vs = Enum.map(ks, fn k -> k*88 end)
-      xxbst = BST.new(Enum.zip(ks, vs))
-      probes = random_probes(ks)
-      bst = Enum.reduce(probes, xxbst, fn k, acc -> BST.delete(acc, k) end)
-      for_all k in elements(probes) do
-        BST.has_key?(bst, k) == false
+    test "not found with has_key?" do
+      ptest ks: list(of: int(min: 1, max: 5000), min: 1) do
+        vs = Enum.map(ks, fn k -> k*10 end)
+        bst = BST.new(Enum.zip(ks, vs))
+        neg_ks = Enum.map(ks, &(-1*&1))
+        probes = random_probes(neg_ks)
+        for k <- probes do
+          assert BST.has_key?(bst, k) == false
+        end
+      end
+    end
+
+    test "keys" do
+      ptest ks: list(of: int(min: 1, max: 5000), min: 1) do
+        vs = Enum.map(ks, fn k -> k end)
+        bst = BST.new(Enum.zip(ks, vs))
+        assert BST.keys(bst) == Enum.uniq(Enum.sort(ks))
+      end
+    end
+
+    test "delete" do
+      ptest ks: list(of: int(min: 1, max: 5000), min: 1) do
+        vs = Enum.map(ks, fn k -> k*88 end)
+        xxbst = BST.new(Enum.zip(ks, vs))
+        probes = random_probes(ks)
+        bst = Enum.reduce(probes, xxbst, fn k, acc -> BST.delete(acc, k) end)
+        for k <- probes do
+          assert BST.has_key?(bst, k) == false
+        end
       end
     end
   end

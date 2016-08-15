@@ -1,6 +1,5 @@
 defmodule Purely.BSTSetTest do
   use ExUnit.Case, async: true
-  use ExCheck
 
   alias Purely.BSTSet
 
@@ -23,10 +22,25 @@ defmodule Purely.BSTSetTest do
     assert BSTSet.to_list(set) == [3]
   end
 
-  property :put do
-    for_all xs in list(int(1, 5000)) do
-      set = BSTSet.new(xs)
-      BSTSet.to_list(set) == Enum.uniq(Enum.sort(xs))
+  describe "ExCheck" do
+    use ExCheck
+
+    property :put do
+      for_all xs in list(int(1, 5000)) do
+        set = BSTSet.new(xs)
+        BSTSet.to_list(set) == Enum.uniq(Enum.sort(xs))
+      end
+    end
+  end
+
+  describe "Quixir" do
+    use Quixir
+
+    test "put and sort" do
+      ptest xs: list(of: int(min: 1, max: 5000)) do
+        set = BSTSet.new(xs)
+        assert BSTSet.to_list(set) == Enum.uniq(Enum.sort(xs))
+      end
     end
   end
 
