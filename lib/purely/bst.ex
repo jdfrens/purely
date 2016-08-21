@@ -1,8 +1,10 @@
 defmodule Purely.BST do
   @moduledoc """
-  Purely functional implementation of a binary search tree (BST).
+  A set of functions for a purely functional implementation of a
+  binary search tree (BST).
 
-  Each node in the binary tree stores a key and a value.
+  Each node in the binary tree stores a key and a value in a tuple.
+  Keys are compared with `<` and `>`.
   """
 
   @empty {}
@@ -24,10 +26,13 @@ defmodule Purely.BST do
   def new(enumerable) do
     Enum.reduce(enumerable, new, &flipped_put/2)
   end
+
   # TODO: new(enumerable, transform)
 
   defp build(kv), do: build(kv, @empty, @empty)
   defp build(kv, l, r), do: {kv, l, r}
+
+  # TODO: equal?(bst1, bst2)
 
   @doc """
   Returns a list of the key-value pairs in the tree in order, sorted
@@ -83,7 +88,20 @@ defmodule Purely.BST do
         v
     end
   end
-  # TODO: get_lazy(map, key, fun)
+
+  # TODO: get_and_update(bst, key, fun)
+  # TODO: get_and_update!(bst, key, fun)
+
+  # TODO: get_lazy(bst, key, fun)
+
+  # TODO: pop(bst, key, default \\ nil)
+  # TODO: pop_lazy(bst, key, fun)
+
+  # TODO: fetch(bst, key)
+  # TODO: fetch!(bst, key)
+
+  # TODO: update(map, key, initial, fun)
+  # TODO: update!(map, key, fun)
 
   @doc """
   Returns true if the key is in the BST, false otherwise.
@@ -109,6 +127,17 @@ defmodule Purely.BST do
     inorder(bst) |> Enum.map(fn {k,_} -> k end)
   end
 
+  # TODO: values(bst)
+
+  # TODO: merge(bst1, bst2)
+  # TODO: merge(bst1, bst2, callback)
+
+  # TODO: split(bst, keys)
+
+  # TODO: take(bst, keys)
+
+  # TODO: to_list(bst)
+
   @doc """
   Deletes the given key (and its value) from the BST.
   """
@@ -125,6 +154,8 @@ defmodule Purely.BST do
     end
   end
 
+  # TODO: drop(bst, keys)
+
   @docp """
   Purely a structural traversal to remove and return the leftmost
   key-value.  This leftmost key-value will replace a recently removed
@@ -140,3 +171,5 @@ defmodule Purely.BST do
     build(newkv, sibling, build(kv, new_l, r))
   end
 end
+
+# TODO: defimpl Enumerable, for: Purely.BST
