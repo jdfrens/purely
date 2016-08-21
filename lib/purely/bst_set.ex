@@ -2,7 +2,7 @@ defmodule Purely.BSTSet do
   alias Purely.BST
 
   @type empty :: BST.empty
-  @type t :: empty | BST.t
+  @type t :: empty | BST.bst
 
   @spec new() :: empty
   def new do

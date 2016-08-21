@@ -1,8 +1,8 @@
 defmodule Purely.LeftistHeap do
-  alias Purely.BST
+  alias Purely.BinaryTree
 
-  @type empty :: BST.empty
-  @type t :: empty | BST.t
+  @type empty :: BinaryTree.empty
+  @type t :: empty | BinaryTree.t
 
   @empty {}
 
