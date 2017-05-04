@@ -6,7 +6,7 @@ defmodule Purely.Heap do
       @spec new(Enum.t) :: unquote(type)
       def new(enumerable) do
         Enum.reduce(enumerable, @empty, &(put(&2,&1)))
-      end
+     end
 
       @spec sort(unquote(type)) :: Enum.t
       def sort(h), do: sort(h, [])

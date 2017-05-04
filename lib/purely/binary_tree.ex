@@ -3,20 +3,21 @@ defmodule Purely.BinaryTree do
   Basic operations for a basic binary tree.
   """
 
-  @empty {}
+  alias __MODULE__
 
-  @typedoc "Just an empty tuple"
-  @type empty :: {}
-  @typedoc """
-  The tree is either empty or a tuple of a value, a left tree, and a
-  right tree.
-  """
-  @type t :: empty | {term, t, t}
+  defstruct empty: false, payload: nil, left: nil, right: nil
+
+  @type payload :: any
+  @type t :: %Purely.BinaryTree{empty: boolean, payload: payload, left: Purely.BinaryTree.t, right: Purely.BinaryTree.t}
+
+  def empty, do: %BinaryTree{empty: true}
 
   @doc """
   Counts the number of nodes along the right spine of a binary tree.
   """
   @spec length_right_spine(t) :: non_neg_integer
-  def length_right_spine(@empty), do: 0
-  def length_right_spine({_, _, r}), do: 1 + length_right_spine(r)
+  def length_right_spine(%BinaryTree{empty: true}), do: 0
+  def length_right_spine(%BinaryTree{right: r}) do
+    1 + length_right_spine(r)
+  end
 end

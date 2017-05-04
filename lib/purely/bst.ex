@@ -7,13 +7,15 @@ defmodule Purely.BST do
   Keys are compared with `<` and `>`.
   """
 
-  @empty {}
+  alias Purely.BinaryTree
+
+  @empty %BinaryTree{empty: true}
 
   @type key :: any
   @type value :: any
+  @type payload :: {key, value}
 
-  @type empty :: Purely.BinaryTree.empty
-  @type bst :: empty | Purely.BinaryTree.t
+  @type t :: BinaryTree.t
 
   @doc """
   Returns an empty BST.
@@ -21,11 +23,11 @@ defmodule Purely.BST do
   ## Examples
 
       iex> Purely.BST.new
-      {}
+      %Purely.BinaryTree{empty: true}
 
   """
-  @spec new() :: empty
-  def new, do: @empty
+  @spec new() :: BinaryTree.t
+  def new, do: BinaryTree.empty
 
   @doc """
   Creates a BST from an `enumerable`.
@@ -34,17 +36,17 @@ defmodule Purely.BST do
 
   ## Examples
 
-      iex> Purely.BST.new([{:b, 1}, {:a, 2}]) |> Purely.BST.inorder
+      iex> Purely.BST.new([{:b, 1}, {:a, 2}]) |> to_string
       [a: 2, b: 1]
-      iex> Purely.BST.new([a: 1, a: 2, a: 3]) |> Purely.BST.inorder
+      iex> Purely.BST.new([a: 1, a: 2, a: 3]) |> to_string
       [a: 3]
-      iex> Purely.BST.new(a: 1, b: 2) |> Purely.BST.inorder
+      iex> Purely.BST.new(a: 1, b: 2) |> to_string
       [a: 1, b: 2]
 
   """
-  @spec new(Enum.t) :: bst
+  @spec new(Enum.t) :: BinaryTree.t
   def new(enumerable) do
-    Enum.reduce(enumerable, new, &flipped_put/2)
+    Enum.reduce(enumerable, new(), &flipped_put/2)
   end
 
   @doc """
@@ -54,11 +56,11 @@ defmodule Purely.BST do
 
   ## Examples
 
-      iex> Purely.BST.new([:a, :b], fn x -> {x, x} end) |> Purely.BST.inorder
+      iex> Purely.BST.new([:a, :b], fn x -> {x, x} end) |> to_string
       [a: :a, b: :b]
 
   """
-  @spec new(Enum.t, (term -> {key, value})) :: bst
+  @spec new(Enum.t, (term -> {key, value})) :: BinaryTree.t
   def new(enumerable, transform) do
     enumerable
     |> Enum.map(transform)
@@ -66,7 +68,7 @@ defmodule Purely.BST do
   end
 
   defp build(kv), do: build(kv, @empty, @empty)
-  defp build(kv, l, r), do: {kv, l, r}
+  defp build(kv, l, r), do: %BinaryTree{payload: kv, left: l, right: r}
 
   @doc """
   Checks if two BSTs are equal.
@@ -85,7 +87,7 @@ defmodule Purely.BST do
       false
 
   """
-  @spec equal?(bst, bst) :: boolean
+  @spec equal?(BinaryTree.t, BinaryTree.t) :: boolean
   def equal?(bst1, bst2) do
     inorder(bst1) === inorder(bst2)
   end
@@ -101,10 +103,10 @@ defmodule Purely.BST do
       [a: 22, b: 9, c: 3, d: 1, e: 2]
 
   """
-  @spec inorder(bst) :: [{key, value}]
+  @spec inorder(BinaryTree.t) :: [{key, value}]
   def inorder(bst), do: Enum.reverse(inorder(bst, []))
   defp inorder(@empty, acc), do: acc
-  defp inorder({kv, l, r}, acc) do
+  defp inorder(%BinaryTree{payload: kv, left: l, right: r}, acc) do
     inorder(r, [kv | inorder(l, acc)])
   end
 
@@ -117,19 +119,19 @@ defmodule Purely.BST do
 
       iex> bst = Purely.BST.new
       iex> bst = Purely.BST.put(bst, :a, 1)
-      iex> bst |> Purely.BST.inorder
+      iex> bst |> to_string
       [a: 1]
       iex> bst = Purely.BST.put(bst, :b, 2)
-      iex> bst |> Purely.BST.inorder
+      iex> bst |> to_string
       [a: 1, b: 2]
       iex> bst = Purely.BST.put(bst, :a, 3)
-      iex> bst |> Purely.BST.inorder
+      iex> bst |> to_string
       [a: 3, b: 2]
 
   """
-  @spec put(bst, key, value) :: bst
+  @spec put(BinaryTree.t, key, value) :: BinaryTree.t
   def put(@empty, key, val), do: build({key, val})
-  def put({{k, v}, l, r}, key, val) do
+  def put(%BinaryTree{payload: {k, v}, left: l, right: r}, key, val) do
     cond do
       key < k ->
         build({k,v}, put(l, key, val), r)
@@ -150,17 +152,17 @@ defmodule Purely.BST do
 
       iex> bst = Purely.BST.new
       iex> bst = Purely.BST.put_new(bst, :a, 1)
-      iex> bst |> Purely.BST.inorder
+      iex> bst |> to_string
       [a: 1]
       iex> bst = Purely.BST.put_new(bst, :b, 2)
-      iex> bst |> Purely.BST.inorder
+      iex> bst |> to_string
       [a: 1, b: 2]
       iex> bst = Purely.BST.put_new(bst, :a, 3)
-      iex> bst |> Purely.BST.inorder
+      iex> bst |> to_string
       [a: 1, b: 2]
 
   """
-  @spec put_new(bst, key, value) :: bst
+  @spec put_new(BinaryTree.t, key, value) :: BinaryTree.t
   def put_new(bst, key, val) do
     cond do
       has_key?(bst, key) ->
@@ -184,13 +186,13 @@ defmodule Purely.BST do
       ...>   # some expensive operation here
       ...>   3
       ...> end
-      iex> Purely.BST.put_new_lazy(bst, :a, fun) |> Purely.BST.inorder
+      iex> Purely.BST.put_new_lazy(bst, :a, fun) |> to_string
       [a: 1]
-      iex> Purely.BST.put_new_lazy(bst, :b, fun) |> Purely.BST.inorder
+      iex> Purely.BST.put_new_lazy(bst, :b, fun) |> to_string
       [a: 1, b: 3]
 
   """
-  @spec put_new_lazy(bst, key, (() -> value)) :: bst
+  @spec put_new_lazy(BinaryTree.t, key, (() -> value)) :: BinaryTree.t
   def put_new_lazy(bst, key, fun) do
     cond do
       has_key?(bst, key) ->
@@ -221,12 +223,12 @@ defmodule Purely.BST do
       3
 
   """
-  @spec get(bst, key) :: value
-  @spec get(bst, key, value) :: value
+  @spec get(BinaryTree.t, key) :: value
+  @spec get(BinaryTree.t, key, value) :: value
   def get(bst, key, default \\ nil), do: get_bst(bst, key, default)
 
   defp get_bst(@empty, _, default), do: default
-  defp get_bst({{k, v}, l, r}, key, default) do
+  defp get_bst(%BinaryTree{payload: {k, v}, left: l, right: r}, key, default) do
     cond do
       key < k ->
         get_bst(l, key, default)
@@ -257,7 +259,7 @@ defmodule Purely.BST do
       13
 
   """
-  @spec get_lazy(bst, key, (() -> value)) :: value
+  @spec get_lazy(BinaryTree.t, key, (() -> value)) :: value
   def get_lazy(bst, key, fun) do
     cond do
       has_key?(bst, key) ->
@@ -283,21 +285,33 @@ defmodule Purely.BST do
   ## Examples
 
       iex> bst = Purely.BST.new(a: 1)
-      iex> Purely.BST.get_and_update(bst, :a, fn current_value ->
+      iex> gotten_and_updated = Purely.BST.get_and_update(bst, :a, fn current_value ->
       ...>   {current_value, "new value!"}
       ...> end)
-      {1, {{:a, "new value!"}, {}, {}}}
-      iex> Purely.BST.get_and_update(bst, :b, fn current_value ->
+      iex> gotten_and_updated |> elem(0)
+      1
+      iex> gotten_and_updated |> elem(1) |> to_string
+      [a: "new value!"]
+      iex> default_and_updated = Purely.BST.get_and_update(bst, :b, fn current_value ->
       ...>   {current_value, "new value!"}
       ...> end)
-      {nil, {{:a, 1}, {}, {{:b, "new value!"}, {}, {}}}}
-      iex> Purely.BST.get_and_update(bst, :a, fn _ -> :pop end)
-      {1, {}}
-      iex> Purely.BST.get_and_update(bst, :b, fn _ -> :pop end)
-      {nil, {{:a, 1}, {}, {}}}
+      iex> default_and_updated |> elem(0)
+      nil
+      iex> default_and_updated |> elem(1) |> to_string
+      [a: 1, b: "new value!"]
+      iex> popped_found = Purely.BST.get_and_update(bst, :a, fn _ -> :pop end)
+      iex> popped_found |> elem(0)
+      1
+      iex> popped_found |> elem(1) |> to_string
+      []
+      iex> popped_not_found = Purely.BST.get_and_update(bst, :b, fn _ -> :pop end)
+      iex> popped_not_found |> elem(0)
+      nil
+      iex> popped_not_found |> elem(1) |> to_string
+      [a: 1]
 
   """
-  @spec get_and_update(bst, key, (value -> {get, value} | :pop)) :: {get, bst} when get: term
+  @spec get_and_update(BinaryTree.t, key, (value -> {get, value} | :pop)) :: {get, BinaryTree.t} when get: term
   def get_and_update(bst, key, fun) do
     current = get(bst, key)
     case fun.(current) do
@@ -320,19 +334,25 @@ defmodule Purely.BST do
   ## Examples
 
       iex> bst = Purely.BST.new(a: 1)
-      iex> Purely.BST.get_and_update!(bst, :a, fn current_value ->
+      iex> updated = Purely.BST.get_and_update!(bst, :a, fn current_value ->
       ...>   {current_value, "new value!"}
       ...> end)
-      {1, {{:a, "new value!"}, {}, {}}}
+      iex> updated |> elem(0)
+      1
+      iex> updated |> elem(1) |> to_string
+      [a: "new value!"]
       iex> Purely.BST.get_and_update!(bst, :b, fn current_value ->
       ...>   {current_value, "new value!"}
       ...> end)
       ** (KeyError) key :b not found
-      iex> Purely.BST.get_and_update!(bst, :a, fn _ -> :pop end)
-      {1, {}}
+      iex> popped = Purely.BST.get_and_update!(bst, :a, fn _ -> :pop end)
+      iex> popped |> elem(0)
+      1
+      iex> popped |> elem(1) |> to_string
+      []
 
   """
-  @spec get_and_update!(bst, key, (value -> {get, value})) :: {get, bst} | no_return when get: term
+  @spec get_and_update!(BinaryTree.t, key, (value -> {get, value})) :: {get, BinaryTree.t} | no_return when get: term
   def get_and_update!(bst, key, fun) do
     if has_key?(bst, key) do
       current = get(bst, key)
@@ -353,13 +373,13 @@ defmodule Purely.BST do
   ## Examples
 
       iex> bst = Purely.BST.new(a: 1)
-      iex> Purely.BST.update(bst, :a, 13, &(&1 * 2)) |> Purely.BST.inorder
+      iex> Purely.BST.update(bst, :a, 13, &(&1 * 2)) |> to_string
       [a: 2]
-      iex> Purely.BST.update(bst, :b, 11, &(&1 * 2)) |> Purely.BST.inorder
+      iex> Purely.BST.update(bst, :b, 11, &(&1 * 2)) |> to_string
       [a: 1, b: 11]
 
   """
-  @spec update(bst, key, value, (value -> value)) :: bst
+  @spec update(BinaryTree.t, key, value, (value -> value)) :: BinaryTree.t
   def update(bst, key, initial, fun) do
     cond do
       has_key?(bst, key) ->
@@ -378,13 +398,13 @@ defmodule Purely.BST do
   ## Examples
 
       iex> bst = Purely.BST.new(a: 1)
-      iex> Purely.BST.update!(bst, :a, &(&1 * 2)) |> Purely.BST.inorder
+      iex> Purely.BST.update!(bst, :a, &(&1 * 2)) |> to_string
       [a: 2]
       iex> Purely.BST.update!(bst, :b, &(&1 * 2))
       ** (KeyError) key :b not found
 
   """
-  @spec update!(bst, key, (value -> value)) :: bst | no_return
+  @spec update!(BinaryTree.t, key, (value -> value)) :: BinaryTree.t | no_return
   def update!(bst, key, fun) do
     cond do
       has_key?(bst, key) ->
@@ -406,9 +426,9 @@ defmodule Purely.BST do
       false
 
   """
-  @spec has_key?(bst, key) :: boolean
+  @spec has_key?(BinaryTree.t, key) :: boolean
   def has_key?(@empty, _), do: false
-  def has_key?({{k, _}, l, r}, key) do
+  def has_key?(%BinaryTree{payload: {k, _}, left: l, right: r}, key) do
     cond do
       key < k ->
         has_key?(l, key)
@@ -428,7 +448,7 @@ defmodule Purely.BST do
       [:a, :b]
 
   """
-  @spec keys(bst) :: [key]
+  @spec keys(BinaryTree.t) :: [key]
   def keys(bst) do
     inorder(bst) |> Enum.map(fn {k,_} -> k end)
   end
@@ -443,7 +463,7 @@ defmodule Purely.BST do
       [100, 20]
 
   """
-  @spec values(bst) :: [value]
+  @spec values(BinaryTree.t) :: [value]
   def values(bst) do
     inorder(bst) |> Enum.map(fn {_,v} -> v end)
   end
@@ -458,14 +478,14 @@ defmodule Purely.BST do
       iex> Purely.BST.merge(
       ...>   Purely.BST.new(a: 1, b: 2),
       ...>   Purely.BST.new(a: 3, d: 4)
-      ...> ) |> Purely.BST.inorder
+      ...> ) |> to_string
       [a: 3, b: 2, d: 4]
 
   """
-  @spec merge(bst, bst) :: bst
+  @spec merge(BinaryTree.t, BinaryTree.t) :: BinaryTree.t
   def merge(@empty, bst2), do: bst2
   def merge(bst1, @empty), do: bst1
-  def merge(bst1, {{k,v}, bst2l, bst2r}) do
+  def merge(bst1, %BinaryTree{payload: {k,v}, left: bst2l, right: bst2r}) do
     bst1
     |> put(k, v)
     |> merge(bst2l)
@@ -484,14 +504,14 @@ defmodule Purely.BST do
       iex> bst2 = Purely.BST.new(a: 3, d: 4)
       iex> Purely.BST.merge(bst1, bst2, fn _k, v1, v2 ->
       ...>   v1 + v2
-      ...> end) |> Purely.BST.inorder
+      ...> end) |> to_string
       [{:a, 4}, {:b, 2}, {:d, 4}]
 
   """
-  @spec merge(bst, bst, (key, value, value -> value)) :: bst
+  @spec merge(BinaryTree.t, BinaryTree.t, (key, value, value -> value)) :: BinaryTree.t
   def merge(@empty, bst2, _), do: bst2
   def merge(bst1, @empty, _), do: bst1
-  def merge(bst1, {{k,v}, bst2l, bst2r}, fun) do
+  def merge(bst1, %BinaryTree{payload: {k,v}, left: bst2l, right: bst2r}, fun) do
     bst1
     |> merge_key(k, v, fun)
     |> merge(bst2l, fun)
@@ -516,15 +536,15 @@ defmodule Purely.BST do
 
       iex> bst = Purely.BST.new(a: 1, b: 2, c: 3)
       iex> {bst1, bst2} = Purely.BST.split(bst, [:a, :c, :e])
-      iex> Purely.BST.inorder(bst1)
+      iex> to_string(bst1)
       [a: 1, c: 3]
-      iex> Purely.BST.inorder(bst2)
+      iex> to_string(bst2)
       [b: 2]
 
   """
-  @spec split(bst, Enumerable.t) :: {bst, bst}
+  @spec split(BinaryTree.t, Enumerable.t) :: {BinaryTree.t, BinaryTree.t}
   def split(bst, keys) do
-    Enum.reduce(keys, {new, bst}, fn key, {bst1, bst2} ->
+    Enum.reduce(keys, {new(), bst}, fn key, {bst1, bst2} ->
       if has_key?(bst2, key) do
         {value, bst2} = pop(bst2, key)
         {put(bst1, key, value), bst2}
@@ -541,11 +561,11 @@ defmodule Purely.BST do
   ## Examples
 
       iex> bst = Purely.BST.new(a: 1, b: 2, c: 3)
-      iex> Purely.BST.take(bst, [:a, :c, :e]) |> Purely.BST.inorder
+      iex> Purely.BST.take(bst, [:a, :c, :e]) |> to_string
       [a: 1, c: 3]
 
   """
-  @spec take(bst, Enumerable.t) :: bst
+  @spec take(BinaryTree.t, Enumerable.t) :: BinaryTree.t
   def take(bst, keys) do
     {taken_bst, _} = split(bst, keys)
     taken_bst
@@ -557,11 +577,11 @@ defmodule Purely.BST do
   ## Examples
 
       iex> bst = Purely.BST.new(a: 1, b: 2, c: 3)
-      iex> Purely.BST.drop(bst, [:b, :d]) |> Purely.BST.inorder
+      iex> Purely.BST.drop(bst, [:b, :d]) |> to_string
       [a: 1, c: 3]
 
   """
-  @spec drop(bst, Enumerable.t) :: bst
+  @spec drop(BinaryTree.t, Enumerable.t) :: BinaryTree.t
   def drop(bst, keys) do
     {_, dropped_bst} = split(bst, keys)
     dropped_bst
@@ -578,7 +598,7 @@ defmodule Purely.BST do
       [{1, 2}]
 
   """
-  @spec to_list(bst) :: [{key, value}]
+  @spec to_list(BinaryTree.t) :: [{key, value}]
   def to_list(bst) do
     inorder(bst)
   end
@@ -590,15 +610,22 @@ defmodule Purely.BST do
   ## Examples
 
       iex> bst = Purely.BST.new(a: 1)
-      iex> Purely.BST.pop(bst, :a)
-      {1, {}}
-      iex> Purely.BST.pop(bst, :b)
-      {nil, {{:a, 1}, {}, {}}}
-      iex> Purely.BST.pop(bst, :b, 3)
-      {3, {{:a, 1}, {}, {}}}
+      iex> popped = Purely.BST.pop(bst, :a)
+      iex> popped |> elem(0)
+      1
+      iex> popped |> elem(1) |> to_string
+      []
+      iex> not_found = Purely.BST.pop(bst, :b)
+      iex> not_found |> elem(0)
+      nil
+      iex> not_found |> elem(1) |> to_string
+      [a: 1]
+      iex> not_found_default = Purely.BST.pop(bst, :b, 3)
+      iex> not_found_default |> elem(0)
+      3
 
   """
-  @spec pop(bst, key, value) :: {value, bst}
+  @spec pop(BinaryTree.t, key, value) :: {value, BinaryTree.t}
   def pop(bst, key, default \\ nil) do
     {get(bst, key, default), delete(bst, key)}
   end
@@ -616,13 +643,19 @@ defmodule Purely.BST do
       ...>   # some expensive operation here
       ...>   13
       ...> end
-      iex> Purely.BST.pop_lazy(bst, :a, fun)
-      {1, {}}
-      iex> Purely.BST.pop_lazy(bst, :b, fun)
-      {13, {{:a, 1}, {}, {}}}
+      iex> popped = Purely.BST.pop_lazy(bst, :a, fun)
+      iex> popped |> elem(0)
+      1
+      iex> popped |> elem(1) |> to_string
+      []
+      iex> popped_default = Purely.BST.pop_lazy(bst, :b, fun)
+      iex> popped_default |> elem(0)
+      13
+      iex> popped_default |> elem(1) |> to_string
+      [a: 1]
 
   """
-  @spec pop_lazy(bst, key, (() -> value)) :: {value, bst}
+  @spec pop_lazy(BinaryTree.t, key, (() -> value)) :: {value, BinaryTree.t}
   def pop_lazy(bst, key, fun) do
     cond do
       has_key?(bst, key) ->
@@ -640,15 +673,15 @@ defmodule Purely.BST do
   ## Examples
 
       iex> bst = Purely.BST.new(a: 1, b: 2)
-      iex> Purely.BST.delete(bst, :a) |> Purely.BST.inorder
+      iex> Purely.BST.delete(bst, :a) |> to_string
       [b: 2]
-      iex> Purely.BST.delete(bst, :c) |> Purely.BST.inorder
+      iex> Purely.BST.delete(bst, :c) |> to_string
       [a: 1, b: 2]
 
   """
-  @spec delete(bst, key) :: bst
+  @spec delete(BinaryTree.t, key) :: BinaryTree.t
   def delete(@empty, _), do: @empty
-  def delete({{k, v}, l, r}, key) do
+  def delete(%BinaryTree{payload: {k, v}, left: l, right: r}, key) do
     cond do
       key < k ->
         build({k,v}, delete(l, key), r)
@@ -666,13 +699,17 @@ defmodule Purely.BST do
   left sibling of new node.
   """
   defp promote_leftmost(sibling, @empty), do: sibling
-  defp promote_leftmost(sibling, {kv, @empty, r}) do
+  defp promote_leftmost(sibling, %BinaryTree{payload: kv, left: @empty, right: r}) do
     build(kv, sibling, r)
   end
-  defp promote_leftmost(sibling, {kv, l, r}) do
-    {newkv, sibling, new_l} = promote_leftmost(sibling, l)
+  defp promote_leftmost(sibling, %BinaryTree{payload: kv, left: l, right: r}) do
+    %BinaryTree{payload: newkv, left: sibling, right: new_l} = promote_leftmost(sibling, l)
     build(newkv, sibling, build(kv, new_l, r))
   end
 end
 
 # TODO: defimpl Enumerable, for: Purely.BST
+
+defimpl String.Chars, for: Purely.BinaryTree do
+  def to_string(bst), do: Purely.BST.inorder(bst)
+end
