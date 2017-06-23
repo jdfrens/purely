@@ -16,13 +16,11 @@ defmodule Purely.Mixfile do
 
   defp deps do
     [
-      {:ex_doc, "~> 0.13", only: :dev},
-      {:dialyxir, "~> 0.3", only: [:dev]},
-      {:quixir, "~> 0.1", only: :test},
-      {:pollution, "~> 0.1", only: :test},
-      {:excheck, "~> 0.3", only: :test},
-      # {:triq, github: "krestenkrab/triq", only: :test}
-      {:triq, github: "tuncer/triq", branch: "rand19", only: :test}
+      {:ex_doc, "~> 0.15", only: :dev},
+      {:dialyxir, "~> 0.5", only: [:dev]},
+      {:quixir, "~> 0.9", only: :test},
+      {:pollution, "~> 0.9", only: :test},
+      {:excheck, "~> 0.5", only: :test}
     ]
   end
 end

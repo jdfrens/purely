@@ -5,12 +5,19 @@ defmodule Purely.BinaryTree do
 
   alias __MODULE__
 
-  defstruct empty: false, payload: nil, left: nil, right: nil
+  defstruct empty: false, decoration: %{},
+    payload: nil, left: nil, right: nil
 
   @type payload :: any
-  @type t :: %Purely.BinaryTree{empty: boolean, payload: payload, left: Purely.BinaryTree.t, right: Purely.BinaryTree.t}
+  @type t :: %Purely.BinaryTree{empty: boolean, decoration: map, payload: payload, left: Purely.BinaryTree.t, right: Purely.BinaryTree.t}
 
   def empty, do: %BinaryTree{empty: true}
+
+  def inorder(tree), do: Enum.reverse(inorder(tree, []))
+  defp inorder(%BinaryTree{empty: true}, acc), do: acc
+  defp inorder(%BinaryTree{payload: payload, left: l, right: r}, acc) do
+    inorder(r, [payload | inorder(l, acc)])
+  end
 
   @doc """
   Counts the number of nodes along the right spine of a binary tree.

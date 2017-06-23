@@ -104,11 +104,7 @@ defmodule Purely.BST do
 
   """
   @spec inorder(BinaryTree.t) :: [{key, value}]
-  def inorder(bst), do: Enum.reverse(inorder(bst, []))
-  defp inorder(@empty, acc), do: acc
-  defp inorder(%BinaryTree{payload: kv, left: l, right: r}, acc) do
-    inorder(r, [kv | inorder(l, acc)])
-  end
+  def inorder(tree), do: BinaryTree.inorder(tree)
 
   @doc """
   Puts the given `value` under `key`.
