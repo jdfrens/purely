@@ -22,17 +22,6 @@ defmodule Purely.BSTSetTest do
     assert BSTSet.to_list(set) == [3]
   end
 
-  describe "ExCheck" do
-    use ExCheck
-
-    property :put do
-      for_all xs in list(int(1, 5000)) do
-        set = BSTSet.new(xs)
-        BSTSet.to_list(set) == Enum.uniq(Enum.sort(xs))
-      end
-    end
-  end
-
   describe "Quixir" do
     use Quixir
 

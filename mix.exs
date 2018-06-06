@@ -21,9 +21,7 @@ defmodule Purely.Mixfile do
       {:ex_doc, "~> 0.18", only: :dev},
       {:dialyxir, "~> 0.5", only: [:dev]},
       {:quixir, "~> 0.9", only: :test},
-      {:pollution, "~> 0.9", only: :test},
-      {:excheck, "~> 0.5", only: :test},
-      {:triq, github: "triqng/triq", only: :test}
+      {:pollution, "~> 0.9", only: :test}
     ]
   end
 end
