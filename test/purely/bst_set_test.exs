@@ -4,7 +4,7 @@ defmodule Purely.BSTSetTest do
   alias Purely.BSTSet
 
   test "to_list of empty set" do
-    assert BSTSet.to_list(BSTSet.new) == []
+    assert BSTSet.to_list(BSTSet.new()) == []
   end
 
   test "to_list of interesting set" do
@@ -13,12 +13,12 @@ defmodule Purely.BSTSetTest do
   end
 
   test "put several values" do
-    set = BSTSet.new |> BSTSet.put(3) |> BSTSet.put(6) |> BSTSet.put(2)
+    set = BSTSet.new() |> BSTSet.put(3) |> BSTSet.put(6) |> BSTSet.put(2)
     assert BSTSet.to_list(set) == [2, 3, 6]
   end
 
   test "put duplicates" do
-    set = BSTSet.new |> BSTSet.put(3) |> BSTSet.put(3) |> BSTSet.put(3)
+    set = BSTSet.new() |> BSTSet.put(3) |> BSTSet.put(3) |> BSTSet.put(3)
     assert BSTSet.to_list(set) == [3]
   end
 

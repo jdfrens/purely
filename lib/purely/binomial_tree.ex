@@ -1,5 +1,4 @@
 defmodule Purely.BinomialTree do
-
   @type singleton :: {0, term, []}
   @type t :: singleton | {integer, term, [t]}
 
@@ -9,17 +8,18 @@ defmodule Purely.BinomialTree do
   end
 
   @spec link(t, t) :: t
-  def link({r, v1, c1}=t1, {_, v2, c2}=t2) do
+  def link({r, v1, c1} = t1, {_, v2, c2} = t2) do
     if v1 <= v2 do
-      {r+1, v1, [t2 | c1]}
+      {r + 1, v1, [t2 | c1]}
     else
-      {r+1, v2, [t1 | c2]}
+      {r + 1, v2, [t1 | c2]}
     end
   end
 
   @spec put([t], t) :: [t]
   def put([], t), do: [t]
-  def put([first | rest]=all, t) do
+
+  def put([first | rest] = all, t) do
     if rank(t) < rank(first) do
       [t | all]
     else

@@ -1,17 +1,19 @@
 defmodule Purely.BSTSet do
   alias Purely.BST
 
-  @type empty :: BST.empty
-  @type t :: empty | BST.bst
+  @type empty :: BST.empty()
+  @type t :: empty | BST.bst()
 
   @spec new() :: empty
   def new do
-    BST.new
+    BST.new()
   end
-  @spec new(Enum.t) :: t
+
+  @spec new(Enum.t()) :: t
   def new(enumerable) do
-    Enum.reduce(enumerable, BST.new, &(put(&2,&1)))
+    Enum.reduce(enumerable, BST.new(), &put(&2, &1))
   end
+
   # TODO: new(enumerable, transform)
 
   @spec put(t, term) :: t

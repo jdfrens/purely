@@ -12,8 +12,8 @@ defmodule Purely.BST do
   @type key :: any
   @type value :: any
 
-  @type empty :: Purely.BinaryTree.empty
-  @type bst :: empty | Purely.BinaryTree.t
+  @type empty :: Purely.BinaryTree.empty()
+  @type bst :: empty | Purely.BinaryTree.t()
 
   @doc """
   Returns an empty BST.
@@ -42,7 +42,7 @@ defmodule Purely.BST do
       [a: 1, b: 2]
 
   """
-  @spec new(Enum.t) :: bst
+  @spec new(Enum.t()) :: bst
   def new(enumerable) do
     Enum.reduce(enumerable, new(), &flipped_put/2)
   end
@@ -58,7 +58,7 @@ defmodule Purely.BST do
       [a: :a, b: :b]
 
   """
-  @spec new(Enum.t, (term -> {key, value})) :: bst
+  @spec new(Enum.t(), (term -> {key, value})) :: bst
   def new(enumerable, transform) do
     enumerable
     |> Enum.map(transform)
@@ -104,6 +104,7 @@ defmodule Purely.BST do
   @spec inorder(bst) :: [{key, value}]
   def inorder(bst), do: Enum.reverse(inorder(bst, []))
   defp inorder(@empty, acc), do: acc
+
   defp inorder({kv, l, r}, acc) do
     inorder(r, [kv | inorder(l, acc)])
   end
@@ -129,12 +130,15 @@ defmodule Purely.BST do
   """
   @spec put(bst, key, value) :: bst
   def put(@empty, key, val), do: build({key, val})
+
   def put({{k, v}, l, r}, key, val) do
     cond do
       key < k ->
-        build({k,v}, put(l, key, val), r)
+        build({k, v}, put(l, key, val), r)
+
       k < key ->
         build({k, v}, l, put(r, key, val))
+
       true ->
         build({k, val}, l, r)
     end
@@ -165,6 +169,7 @@ defmodule Purely.BST do
     cond do
       has_key?(bst, key) ->
         bst
+
       true ->
         put(bst, key, val)
     end
@@ -195,6 +200,7 @@ defmodule Purely.BST do
     cond do
       has_key?(bst, key) ->
         bst
+
       true ->
         put(bst, key, fun.())
     end
@@ -226,12 +232,15 @@ defmodule Purely.BST do
   def get(bst, key, default \\ nil), do: get_bst(bst, key, default)
 
   defp get_bst(@empty, _, default), do: default
+
   defp get_bst({{k, v}, l, r}, key, default) do
     cond do
       key < k ->
         get_bst(l, key, default)
+
       k < key ->
         get_bst(r, key, default)
+
       true ->
         v
     end
@@ -262,6 +271,7 @@ defmodule Purely.BST do
     cond do
       has_key?(bst, key) ->
         get(bst, key)
+
       true ->
         fun.()
     end
@@ -300,9 +310,10 @@ defmodule Purely.BST do
   @spec get_and_update(bst, key, (value -> {get, value} | :pop)) :: {get, bst} when get: term
   def get_and_update(bst, key, fun) do
     current = get(bst, key)
+
     case fun.(current) do
       {get, update} -> {get, put(bst, key, update)}
-      :pop          -> {current, delete(bst, key)}
+      :pop -> {current, delete(bst, key)}
     end
   end
 
@@ -332,13 +343,15 @@ defmodule Purely.BST do
       {1, {}}
 
   """
-  @spec get_and_update!(bst, key, (value -> {get, value})) :: {get, bst} | no_return when get: term
+  @spec get_and_update!(bst, key, (value -> {get, value})) :: {get, bst} | no_return
+        when get: term
   def get_and_update!(bst, key, fun) do
     if has_key?(bst, key) do
       current = get(bst, key)
+
       case fun.(current) do
         {get, update} -> {get, put(bst, key, update)}
-        :pop          -> {current, delete(bst, key)}
+        :pop -> {current, delete(bst, key)}
       end
     else
       :erlang.error({:badkey, key})
@@ -365,6 +378,7 @@ defmodule Purely.BST do
       has_key?(bst, key) ->
         value = get(bst, key)
         put(bst, key, fun.(value))
+
       true ->
         put(bst, key, initial)
     end
@@ -389,12 +403,13 @@ defmodule Purely.BST do
     cond do
       has_key?(bst, key) ->
         update(bst, key, :does_not_matter, fun)
+
       true ->
         :erlang.error({:badkey, key})
     end
   end
 
- @doc """
+  @doc """
   Returns whether a given `key` exists in the given `map`.
 
   ## Examples
@@ -408,12 +423,15 @@ defmodule Purely.BST do
   """
   @spec has_key?(bst, key) :: boolean
   def has_key?(@empty, _), do: false
+
   def has_key?({{k, _}, l, r}, key) do
     cond do
       key < k ->
         has_key?(l, key)
+
       k < key ->
         has_key?(r, key)
+
       true ->
         true
     end
@@ -430,7 +448,7 @@ defmodule Purely.BST do
   """
   @spec keys(bst) :: [key]
   def keys(bst) do
-    inorder(bst) |> Enum.map(fn {k,_} -> k end)
+    inorder(bst) |> Enum.map(fn {k, _} -> k end)
   end
 
   @doc """
@@ -445,7 +463,7 @@ defmodule Purely.BST do
   """
   @spec values(bst) :: [value]
   def values(bst) do
-    inorder(bst) |> Enum.map(fn {_,v} -> v end)
+    inorder(bst) |> Enum.map(fn {_, v} -> v end)
   end
 
   @doc """
@@ -465,7 +483,8 @@ defmodule Purely.BST do
   @spec merge(bst, bst) :: bst
   def merge(@empty, bst2), do: bst2
   def merge(bst1, @empty), do: bst1
-  def merge(bst1, {{k,v}, bst2l, bst2r}) do
+
+  def merge(bst1, {{k, v}, bst2l, bst2r}) do
     bst1
     |> put(k, v)
     |> merge(bst2l)
@@ -491,7 +510,8 @@ defmodule Purely.BST do
   @spec merge(bst, bst, (key, value, value -> value)) :: bst
   def merge(@empty, bst2, _), do: bst2
   def merge(bst1, @empty, _), do: bst1
-  def merge(bst1, {{k,v}, bst2l, bst2r}, fun) do
+
+  def merge(bst1, {{k, v}, bst2l, bst2r}, fun) do
     bst1
     |> merge_key(k, v, fun)
     |> merge(bst2l, fun)
@@ -499,8 +519,7 @@ defmodule Purely.BST do
   end
 
   defp merge_key(bst, k, v, fun) do
-    new_value =
-      if has_key?(bst, k), do: fun.(k, get(bst, k), v), else: v
+    new_value = if has_key?(bst, k), do: fun.(k, get(bst, k), v), else: v
     put(bst, k, new_value)
   end
 
@@ -522,7 +541,7 @@ defmodule Purely.BST do
       [b: 2]
 
   """
-  @spec split(bst, Enumerable.t) :: {bst, bst}
+  @spec split(bst, Enumerable.t()) :: {bst, bst}
   def split(bst, keys) do
     Enum.reduce(keys, {new(), bst}, fn key, {bst1, bst2} ->
       if has_key?(bst2, key) do
@@ -545,7 +564,7 @@ defmodule Purely.BST do
       [a: 1, c: 3]
 
   """
-  @spec take(bst, Enumerable.t) :: bst
+  @spec take(bst, Enumerable.t()) :: bst
   def take(bst, keys) do
     {taken_bst, _} = split(bst, keys)
     taken_bst
@@ -561,7 +580,7 @@ defmodule Purely.BST do
       [a: 1, c: 3]
 
   """
-  @spec drop(bst, Enumerable.t) :: bst
+  @spec drop(bst, Enumerable.t()) :: bst
   def drop(bst, keys) do
     {_, dropped_bst} = split(bst, keys)
     dropped_bst
@@ -627,6 +646,7 @@ defmodule Purely.BST do
     cond do
       has_key?(bst, key) ->
         pop(bst, key)
+
       true ->
         pop(bst, key, fun.())
     end
@@ -648,12 +668,15 @@ defmodule Purely.BST do
   """
   @spec delete(bst, key) :: bst
   def delete(@empty, _), do: @empty
+
   def delete({{k, v}, l, r}, key) do
     cond do
       key < k ->
-        build({k,v}, delete(l, key), r)
+        build({k, v}, delete(l, key), r)
+
       k < key ->
-        build({k,v}, l, delete(r, key))
+        build({k, v}, l, delete(r, key))
+
       true ->
         promote_leftmost(l, r)
     end
@@ -664,9 +687,11 @@ defmodule Purely.BST do
   # key.  `sibling` is the left sibling of the deleted node and will be
   # left sibling of new node.
   defp promote_leftmost(sibling, @empty), do: sibling
+
   defp promote_leftmost(sibling, {kv, @empty, r}) do
     build(kv, sibling, r)
   end
+
   defp promote_leftmost(sibling, {kv, l, r}) do
     {newkv, sibling, new_l} = promote_leftmost(sibling, l)
     build(newkv, sibling, build(kv, new_l, r))
