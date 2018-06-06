@@ -157,7 +157,7 @@ defmodule Purely.BSTTest do
     end
 
     test "new from an enumerable and a transform" do
-      ptest xs: list(of: int) do
+      ptest xs: list(of: int()) do
         fun = fn x -> {x, x} end
         bst = BST.new(xs, fun)
         assert BST.inorder(bst) == xs |> Enum.sort |> Enum.uniq |> Enum.map(fun)
@@ -165,7 +165,7 @@ defmodule Purely.BSTTest do
     end
 
     test "equals with many elements" do
-      ptest xs: list(of: int) do
+      ptest xs: list(of: int()) do
         ys = xs |> Enum.shuffle
         bst_xs = BST.new(Enum.zip(xs, xs))
         bst_ys = BST.new(Enum.zip(ys, ys))
@@ -174,7 +174,7 @@ defmodule Purely.BSTTest do
     end
 
     test "not equals with many elements" do
-      ptest xs: list(of: int, min: 4) do
+      ptest xs: list(of: int(), min: 4) do
         ys = xs |> Enum.shuffle |> Enum.drop(3)
         bst_xs = BST.new(Enum.zip(xs, xs))
         bst_ys = BST.new(Enum.zip(ys, ys))
@@ -234,7 +234,7 @@ defmodule Purely.BSTTest do
           xs
           |> Enum.uniq
           |> Enum.shuffle
-          |> Enum.partition(fn x -> rem(x, 2) == 0 end)
+          |> Enum.split_with(fn x -> rem(x, 2) == 0 end)
 
         bst = Enum.reduce(updates, BST.new(Enum.zip(xs, xs)), fn y, acc ->
           BST.update(acc, y, :default, &(&1 * 10))
@@ -271,7 +271,7 @@ defmodule Purely.BSTTest do
           xs
           |> Enum.uniq
           |> Enum.shuffle
-          |> Enum.partition(fn x -> rem(x, 2) == 0 end)
+          |> Enum.split_with(fn x -> rem(x, 2) == 0 end)
 
         bst = Enum.reduce(updates, BST.new(Enum.zip(xs, xs)), fn y, acc ->
           BST.update!(acc, y, &(&1 * 10))
@@ -313,7 +313,7 @@ defmodule Purely.BSTTest do
           xs
           |> Enum.uniq
           |> Enum.shuffle
-          |> Enum.partition(fn x -> rem(x, 2) == 0 end)
+          |> Enum.split_with(fn x -> rem(x, 2) == 0 end)
 
         bst = BST.new(Enum.zip(xs, xs))
         {old_values, updated_bst} =
@@ -356,7 +356,7 @@ defmodule Purely.BSTTest do
           xs
           |> Enum.uniq
           |> Enum.shuffle
-          |> Enum.partition(fn x -> rem(x, 2) == 0 end)
+          |> Enum.split_with(fn x -> rem(x, 2) == 0 end)
 
         bst = BST.new(Enum.zip(xs, xs))
         {old_values, updated_bst} =
@@ -436,8 +436,8 @@ defmodule Purely.BSTTest do
     end
 
     test "merge" do
-      ptest xs: list(of: int),
-        ys: list(of: int) do
+      ptest xs: list(of: int()),
+        ys: list(of: int()) do
         bst1 = BST.new(Enum.zip(xs, xs))
         bst2 = BST.new(Enum.zip(ys, ys))
         all = xs ++ ys
@@ -448,7 +448,7 @@ defmodule Purely.BSTTest do
     end
 
     test "merge with callback" do
-      ptest xs: list(of: int, min: 1) do
+      ptest xs: list(of: int(), min: 1) do
         bst = BST.new(Enum.zip(xs, xs))
         merged = BST.merge(bst, bst, fn k, v1, v2 -> k + v1 + v2 end)
         control = BST.new(Enum.map(xs, &{&1, 3 * &1}))
@@ -468,7 +468,7 @@ defmodule Purely.BSTTest do
     end
 
     test "split" do
-      ptest xs: list(of: int),
+      ptest xs: list(of: int()),
         split_count: int(min: 0, max: length(^xs)) do
         bst = BST.new(Enum.zip(xs, xs))
         split_keys = MapSet.new(xs |> Enum.shuffle |> Enum.take(split_count))
@@ -480,7 +480,7 @@ defmodule Purely.BSTTest do
     end
 
     test "take" do
-      ptest xs: list(of: int),
+      ptest xs: list(of: int()),
         taken_count: int(min: 0, max: length(^xs)) do
         bst = BST.new(Enum.zip(xs, xs))
         taken_keys = xs |> Enum.shuffle |> Enum.take(taken_count)
@@ -490,7 +490,7 @@ defmodule Purely.BSTTest do
     end
 
     test "drop" do
-      ptest xs: list(of: int),
+      ptest xs: list(of: int()),
         drop_count: int(min: 0, max: length(^xs)) do
         bst = BST.new(Enum.zip(xs, xs))
         dropped_keys = MapSet.new(xs |> Enum.shuffle |> Enum.take(drop_count))
@@ -501,7 +501,7 @@ defmodule Purely.BSTTest do
     end
 
     test "pop" do
-      ptest xs: list(of: int, min: 5) do
+      ptest xs: list(of: int(), min: 5) do
         bst = BST.new(Enum.zip(xs, xs))
         xs
         |> Enum.shuffle
@@ -523,7 +523,7 @@ defmodule Purely.BSTTest do
     end
 
     test "pop_lazy" do
-      ptest xs: list(of: int, min: 5) do
+      ptest xs: list(of: int(), min: 5) do
         bst = BST.new(Enum.zip(xs, xs))
         fun = fn -> raise "do not call me!" end
         xs

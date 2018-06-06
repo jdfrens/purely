@@ -7,7 +7,7 @@ defmodule Purely.Mixfile do
      elixir: "~> 1.2",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps]
+     deps: deps()]
   end
 
   def application do
@@ -16,13 +16,12 @@ defmodule Purely.Mixfile do
 
   defp deps do
     [
-      {:ex_doc, "~> 0.13", only: :dev},
-      {:dialyxir, "~> 0.3", only: [:dev]},
-      {:quixir, "~> 0.1", only: :test},
-      {:pollution, "~> 0.1", only: :test},
-      {:excheck, "~> 0.3", only: :test},
-      # {:triq, github: "krestenkrab/triq", only: :test}
-      {:triq, github: "tuncer/triq", branch: "rand19", only: :test}
+      {:ex_doc, "~> 0.18", only: :dev},
+      {:dialyxir, "~> 0.5", only: [:dev]},
+      {:quixir, "~> 0.9", only: :test},
+      {:pollution, "~> 0.9", only: :test},
+      {:excheck, "~> 0.5", only: :test},
+      {:triq, github: "triqng/triq", only: :test}
     ]
   end
 end

@@ -44,7 +44,7 @@ defmodule Purely.BST do
   """
   @spec new(Enum.t) :: bst
   def new(enumerable) do
-    Enum.reduce(enumerable, new, &flipped_put/2)
+    Enum.reduce(enumerable, new(), &flipped_put/2)
   end
 
   @doc """
@@ -524,7 +524,7 @@ defmodule Purely.BST do
   """
   @spec split(bst, Enumerable.t) :: {bst, bst}
   def split(bst, keys) do
-    Enum.reduce(keys, {new, bst}, fn key, {bst1, bst2} ->
+    Enum.reduce(keys, {new(), bst}, fn key, {bst1, bst2} ->
       if has_key?(bst2, key) do
         {value, bst2} = pop(bst2, key)
         {put(bst1, key, value), bst2}
@@ -659,12 +659,10 @@ defmodule Purely.BST do
     end
   end
 
-  @docp """
-  Purely a structural traversal to remove and return the leftmost
-  key-value.  This leftmost key-value will replace a recently removed
-  key.  `sibling` is the left sibling of the deleted node and will be
-  left sibling of new node.
-  """
+  # Purely a structural traversal to remove and return the leftmost
+  # key-value.  This leftmost key-value will replace a recently removed
+  # key.  `sibling` is the left sibling of the deleted node and will be
+  # left sibling of new node.
   defp promote_leftmost(sibling, @empty), do: sibling
   defp promote_leftmost(sibling, {kv, @empty, r}) do
     build(kv, sibling, r)
