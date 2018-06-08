@@ -1,6 +1,6 @@
 defmodule Purely.BSTTest do
   use ExUnit.Case, async: true
-  use Quixir
+  use ExUnitProperties
 
   alias Purely.BST
 
@@ -42,16 +42,16 @@ defmodule Purely.BSTTest do
     assert BST.inorder(bst) == [{-2, -2}, {3, 3}, {6, 6}, {7, 7}, {9, 9}, {10, 10}, {11, 11}]
   end
 
-  test "puts and inorder/sort" do
-    ptest xs: list(of: int(min: 1, max: 5000)) do
+  property "puts and inorder/sort" do
+    check all xs <- list_of(integer(1..5000)) do
       xs = Enum.zip(xs, xs)
       bst = BST.new(xs)
       assert BST.inorder(bst) == Enum.uniq(Enum.sort(xs))
     end
   end
 
-  test "put_new" do
-    ptest xs: list(of: int(min: 1, max: 5000)) do
+  property "put_new" do
+    check all xs <- list_of(integer(1..5000)) do
       xs = Enum.zip(xs, xs)
       ys = xs |> Enum.map(fn {x, x} -> {x, x + 1} end) |> Enum.shuffle()
 
@@ -64,8 +64,8 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "put_new_lazy" do
-    ptest xs: list(of: int(min: 1, max: 5000)) do
+  property "put_new_lazy" do
+    check all xs <- list_of(integer(1..5000)) do
       bst = BST.new()
 
       bst =
@@ -82,16 +82,16 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "new from an enumerable and a transform" do
-    ptest xs: list(of: int()) do
+  property "new from an enumerable and a transform" do
+    check all xs <- list_of(integer()) do
       fun = fn x -> {x, x} end
       bst = BST.new(xs, fun)
       assert BST.inorder(bst) == xs |> Enum.sort() |> Enum.uniq() |> Enum.map(fun)
     end
   end
 
-  test "equals with many elements" do
-    ptest xs: list(of: int()) do
+  property "equals with many elements" do
+    check all xs <- list_of(integer()) do
       ys = xs |> Enum.shuffle()
       bst_xs = BST.new(Enum.zip(xs, xs))
       bst_ys = BST.new(Enum.zip(ys, ys))
@@ -99,8 +99,8 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "not equals with many elements" do
-    ptest xs: list(of: int(), min: 4) do
+  property "not equals with many elements" do
+    check all xs <- uniq_list_of(resize(integer(), 100), min_length: 4) do
       ys = xs |> Enum.shuffle() |> Enum.drop(3)
       bst_xs = BST.new(Enum.zip(xs, xs))
       bst_ys = BST.new(Enum.zip(ys, ys))
@@ -108,8 +108,8 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "get values" do
-    ptest ks: list(of: int(min: 1, max: 5000), min: 1) do
+  property "get values" do
+    check all ks <- list_of(integer(1..5000), min_length: 1) do
       vs = Enum.map(ks, fn k -> k * 9 end)
       bst = BST.new(Enum.zip(ks, vs))
       probes = random_probes(ks)
@@ -120,8 +120,8 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "get missing values" do
-    ptest ks: list(of: int(min: 1, max: 5000), min: 1) do
+  property "get missing values" do
+    check all ks <- list_of(integer(1..5000), min_length: 1) do
       vs = Enum.map(ks, fn k -> k * 20 end)
       bst = BST.new(Enum.zip(ks, vs))
       neg_ks = Enum.map(ks, &(-1 * &1))
@@ -133,8 +133,8 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "get_lazy values" do
-    ptest ks: list(of: int(min: 1, max: 5000), min: 1) do
+  property "get_lazy values" do
+    check all ks <- list_of(integer(1..5000), min_length: 1) do
       vs = Enum.map(ks, fn k -> k * 9 end)
       bst = BST.new(Enum.zip(ks, vs))
       probes = random_probes(ks)
@@ -145,8 +145,8 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "get_lazy missing values" do
-    ptest ks: list(of: int(min: 1, max: 5000), min: 1) do
+  property "get_lazy missing values" do
+    check all ks <- list_of(integer(1..5000), min_length: 1) do
       vs = Enum.map(ks, fn k -> k * 20 end)
       bst = BST.new(Enum.zip(ks, vs))
       neg_ks = Enum.map(ks, &(-1 * &1))
@@ -158,8 +158,8 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "update" do
-    ptest xs: list(of: int(min: 1), min: 5) do
+  property "update" do
+    check all xs <- list_of(positive_integer(), min_length: 5) do
       {updates, unchanged} =
         xs
         |> Enum.uniq()
@@ -181,9 +181,9 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "update missing" do
-    ptest xs: list(of: int(min: 1)),
-          missing: list(of: int(max: -1)) do
+  property "update missing" do
+    check all xs <- list_of(float(min: 1.0)),
+              missing <- list_of(float(max: -1.0)) do
       bst =
         Enum.reduce(Enum.uniq(missing), BST.new(Enum.zip(xs, xs)), fn y, acc ->
           BST.update(acc, y, :default, &(&1 * 2))
@@ -199,8 +199,8 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "update!" do
-    ptest xs: list(of: int(min: 1), min: 5) do
+  property "update!" do
+    check all xs <- list_of(positive_integer(), min_length: 5) do
       {updates, unchanged} =
         xs
         |> Enum.uniq()
@@ -222,9 +222,9 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "update! missing" do
-    ptest xs: list(of: int(min: 1)),
-          missing: list(of: int(max: -1)) do
+  property "update! missing" do
+    check all xs <- list_of(float(min: 1)),
+              missing <- list_of(float(max: -1)) do
       bst =
         Enum.reduce(Enum.uniq(missing), BST.new(Enum.zip(xs, xs)), fn y, acc ->
           try do
@@ -245,8 +245,8 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "get_and_update" do
-    ptest xs: list(of: int(min: 1), min: 5) do
+  property "get_and_update" do
+    check all xs <- list_of(positive_integer(), min_length: 5) do
       {updates, unchanged} =
         xs
         |> Enum.uniq()
@@ -273,9 +273,9 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "get_and_update missing" do
-    ptest xs: list(of: int(min: 1)),
-          missing: list(of: int(max: -1)) do
+  property "get_and_update missing" do
+    check all xs <- list_of(float(min: 1)),
+              missing <- list_of(float(max: -1)) do
       bst = BST.new(Enum.zip(xs, xs))
 
       bst =
@@ -294,8 +294,8 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "get_and_update!" do
-    ptest xs: list(of: int(min: 1), min: 5) do
+  property "get_and_update!" do
+    check all xs <- list_of(positive_integer(), min_length: 5) do
       {updates, unchanged} =
         xs
         |> Enum.uniq()
@@ -322,9 +322,9 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "get_and_update! missing" do
-    ptest xs: list(of: int(min: 1)),
-          missing: list(of: int(max: -1)) do
+  property "get_and_update! missing" do
+    check all xs <- list_of(float(min: 1)),
+              missing <- list_of(float(max: -1)) do
       bst =
         Enum.reduce(Enum.uniq(missing), BST.new(Enum.zip(xs, xs)), fn y, acc ->
           try do
@@ -345,8 +345,8 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "found with has_key?" do
-    ptest ks: list(of: int(min: 1, max: 5000), min: 1) do
+  property "found with has_key?" do
+    check all ks <- list_of(integer(1..5000), min_length: 1) do
       vs = Enum.map(ks, fn k -> k * 3 end)
       bst = BST.new(Enum.zip(ks, vs))
       probes = random_probes(ks)
@@ -357,8 +357,8 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "not found with has_key?" do
-    ptest ks: list(of: int(min: 1, max: 5000), min: 1) do
+  property "not found with has_key?" do
+    check all ks <- list_of(integer(1..5000), min_length: 1) do
       vs = Enum.map(ks, fn k -> k * 10 end)
       bst = BST.new(Enum.zip(ks, vs))
       neg_ks = Enum.map(ks, &(-1 * &1))
@@ -370,25 +370,25 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "keys" do
-    ptest ks: list(of: int(min: 1, max: 5000), min: 1) do
+  property "keys" do
+    check all ks <- list_of(integer(1..5000), min_length: 1) do
       vs = Enum.map(ks, fn k -> k * 10 end)
       bst = BST.new(Enum.zip(ks, vs))
       assert BST.keys(bst) == Enum.uniq(Enum.sort(ks))
     end
   end
 
-  test "values" do
-    ptest ks: list(of: int(min: 1, max: 5000), min: 1) do
+  property "values" do
+    check all ks <- list_of(integer(1..5000), min_length: 1) do
       vs = Enum.map(ks, fn k -> k * 10 end)
       bst = BST.new(Enum.zip(ks, vs))
       assert Enum.uniq(Enum.sort(BST.values(bst))) == Enum.uniq(Enum.sort(vs))
     end
   end
 
-  test "merge" do
-    ptest xs: list(of: int()),
-          ys: list(of: int()) do
+  property "merge" do
+    check all xs <- list_of(integer()),
+              ys <- list_of(integer()) do
       bst1 = BST.new(Enum.zip(xs, xs))
       bst2 = BST.new(Enum.zip(ys, ys))
       all = xs ++ ys
@@ -398,16 +398,16 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "merge with callback" do
-    ptest xs: list(of: int(), min: 1) do
+  property "merge with callback" do
+    check all xs <- list_of(integer(), min_length: 1) do
       bst = BST.new(Enum.zip(xs, xs))
       merged = BST.merge(bst, bst, fn k, v1, v2 -> k + v1 + v2 end)
       control = BST.new(Enum.map(xs, &{&1, 3 * &1}))
       assert BST.inorder(merged) == BST.inorder(control)
     end
 
-    ptest xs: list(of: int(min: 1)),
-          ys: list(of: int(max: -1)) do
+    check all xs <- list_of(float(min: 1)),
+              ys <- list_of(float(max: -1)) do
       bst1 = BST.new(Enum.zip(xs, xs))
       bst2 = BST.new(Enum.zip(ys, ys))
 
@@ -421,9 +421,9 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "split" do
-    ptest xs: list(of: int()),
-          split_count: int(min: 0, max: length(^xs)) do
+  property "split" do
+    check all xs <- list_of(integer()),
+              split_count <- integer(0..length(xs)) do
       bst = BST.new(Enum.zip(xs, xs))
       split_keys = MapSet.new(xs |> Enum.shuffle() |> Enum.take(split_count))
       non_split_keys = MapSet.difference(MapSet.new(xs), split_keys)
@@ -433,9 +433,9 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "take" do
-    ptest xs: list(of: int()),
-          taken_count: int(min: 0, max: length(^xs)) do
+  property "take" do
+    check all xs <- list_of(integer()),
+              taken_count <- integer(0..length(xs)) do
       bst = BST.new(Enum.zip(xs, xs))
       taken_keys = xs |> Enum.shuffle() |> Enum.take(taken_count)
       taken_bst = BST.take(bst, taken_keys)
@@ -443,9 +443,9 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "drop" do
-    ptest xs: list(of: int()),
-          drop_count: int(min: 0, max: length(^xs)) do
+  property "drop" do
+    check all xs <- list_of(integer()),
+              drop_count <- integer(0..length(xs)) do
       bst = BST.new(Enum.zip(xs, xs))
       dropped_keys = MapSet.new(xs |> Enum.shuffle() |> Enum.take(drop_count))
       undropped_keys = MapSet.difference(MapSet.new(xs), dropped_keys)
@@ -456,8 +456,8 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "pop" do
-    ptest xs: list(of: int(), min: 5) do
+  property "pop" do
+    check all xs <- list_of(integer(), min_length: 5) do
       bst = BST.new(Enum.zip(xs, xs))
 
       xs
@@ -470,8 +470,9 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "pop missing keys" do
-    ptest xs: list(of: int(min: 1)), probes: list(of: int(max: -1)) do
+  property "pop missing keys" do
+    check all xs <- list_of(float(min: 1)),
+              probes <- list_of(float(max: -1)) do
       bst = BST.new(Enum.zip(xs, xs))
 
       Enum.each(probes, fn p ->
@@ -480,8 +481,8 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "pop_lazy" do
-    ptest xs: list(of: int(), min: 5) do
+  property "pop_lazy" do
+    check all xs <- list_of(integer(), min_length: 5) do
       bst = BST.new(Enum.zip(xs, xs))
       fun = fn -> raise "do not call me!" end
 
@@ -495,8 +496,9 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "pop_lazy missing keys" do
-    ptest xs: list(of: int(min: 1)), probes: list(of: int(max: -1)) do
+  property "pop_lazy missing keys" do
+    check all xs <- list_of(float(min: 1.0)),
+              probes <- list_of(float(max: -1.0)) do
       bst = BST.new(Enum.zip(xs, xs))
       fun = fn -> :missing end
 
@@ -506,8 +508,8 @@ defmodule Purely.BSTTest do
     end
   end
 
-  test "delete" do
-    ptest ks: list(of: int(min: 1, max: 5000), min: 1) do
+  property "delete" do
+    check all ks <- list_of(integer(1..5000), min_length: 1) do
       vs = Enum.map(ks, fn k -> k * 88 end)
       xxbst = BST.new(Enum.zip(ks, vs))
       probes = random_probes(ks)

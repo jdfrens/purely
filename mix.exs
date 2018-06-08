@@ -20,8 +20,7 @@ defmodule Purely.Mixfile do
     [
       {:ex_doc, "~> 0.18", only: :dev},
       {:dialyxir, "~> 0.5", only: [:dev]},
-      {:quixir, "~> 0.9", only: :test},
-      {:pollution, "~> 0.9", only: :test}
+      {:stream_data, "~> 0.1", only: :test}
     ]
   end
 end
