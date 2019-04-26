@@ -523,11 +523,11 @@ defmodule Purely.BSTTest do
 
   test "delete fills in the deleted node" do
     keys = [5, 3, 2, 4, 7, 6, 8]
-    bst = BST.new(Enum.zip(keys, keys)) |> BST.delete(5)
+    bst = keys |> Enum.zip(keys) |> BST.new() |> BST.delete(5)
     assert BST.keys(bst) == [2, 3, 4, 6, 7, 8]
 
     keys = [2, 1, 10, 9, 8, 7, 6, 5, 4, 3]
-    bst = BST.new(Enum.zip(keys, keys)) |> BST.delete(2)
+    bst = keys |> Enum.zip(keys) |> BST.new() |> BST.delete(2)
     assert BST.keys(bst) == [1, 3, 4, 5, 6, 7, 8, 9, 10]
   end
 

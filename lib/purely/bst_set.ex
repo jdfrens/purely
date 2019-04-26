@@ -1,4 +1,8 @@
 defmodule Purely.BSTSet do
+  @moduledoc """
+  Implementation of a set using a binary search tree.
+  """
+
   alias Purely.BST
 
   @type empty :: BST.empty()

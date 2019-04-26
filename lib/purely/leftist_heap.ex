@@ -1,4 +1,8 @@
 defmodule Purely.LeftistHeap do
+  @moduledoc """
+  Implementation of a [leftist heap (a.k.a. "leftist tree")](https://en.wikipedia.org/wiki/Leftist_tree)
+  """
+
   alias Purely.BinaryTree
 
   @type empty :: BinaryTree.empty()

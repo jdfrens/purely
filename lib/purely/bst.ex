@@ -448,7 +448,7 @@ defmodule Purely.BST do
   """
   @spec keys(bst) :: [key]
   def keys(bst) do
-    inorder(bst) |> Enum.map(fn {k, _} -> k end)
+    bst |> inorder() |> Enum.map(fn {k, _} -> k end)
   end
 
   @doc """
@@ -463,7 +463,7 @@ defmodule Purely.BST do
   """
   @spec values(bst) :: [value]
   def values(bst) do
-    inorder(bst) |> Enum.map(fn {_, v} -> v end)
+    bst |> inorder() |> Enum.map(fn {_, v} -> v end)
   end
 
   @doc """

@@ -3,6 +3,7 @@ defmodule Purely.LeftistHeapTest do
   use ExUnitProperties
 
   alias Purely.LeftistHeap
+
   alias Purely.BinaryTree
 
   property "new, put, and sort" do

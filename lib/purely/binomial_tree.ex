@@ -1,4 +1,9 @@
 defmodule Purely.BinomialTree do
+  @moduledoc """
+  Implementation of a [binomial tree](https://en.wikipedia.org/wiki/Binomial_heap) which is used to implement a heap
+  with `Purely.BinomialHeap`.
+  """
+
   @type singleton :: {0, term, []}
   @type t :: singleton | {integer, term, [t]}
 
