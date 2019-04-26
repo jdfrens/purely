@@ -18,8 +18,8 @@ defmodule Purely.Mixfile do
 
   defp deps do
     [
+      {:dialyxir, "~> 1.0.0-rc.6", only: [:dev, :test]},
       {:ex_doc, "~> 0.18", only: :dev},
-      {:dialyxir, "~> 0.5", only: [:dev]},
       {:stream_data, "~> 0.1", only: :test}
     ]
   end
