@@ -1,7 +1,7 @@
 %{"dialyxir": {:hex, :dialyxir, "0.3.5", "eaba092549e044c76f83165978979f60110dc58dd5b92fd952bf2312f64e9b14", [:mix], []},
   "earmark": {:hex, :earmark, "1.0.1", "2c2cd903bfdc3de3f189bd9a8d4569a075b88a8981ded9a0d95672f6e2b63141", [:mix], []},
   "ex_doc": {:hex, :ex_doc, "0.13.0", "aa2f8fe4c6136a2f7cfc0a7e06805f82530e91df00e2bff4b4362002b43ada65", [:mix], [{:earmark, "~> 1.0", [hex: :earmark, optional: false]}]},
-  "excheck": {:hex, :excheck, "0.4.1", "b3e8826eb6c629ce113539974e674096dd09e7412e7190f01b021b8cac6f8f65", [:mix], []},
+  "excheck": {:hex, :excheck, "0.6.0", "f8595a8ac2c0abc0d060c1a4fce7d26f41574543366a52d5f3c84de30a69747b", [:mix], [], "hexpm"},
   "pollution": {:hex, :pollution, "0.1.1", "52973c9a5707463d2d939ebad3a68b2ffcf1bea820a1117a4002479beef63035", [:mix], []},
   "quixir": {:hex, :quixir, "0.1.0", "b382040c8613c64626ae921bf378266121bd38d2edf14479cad751e6ed5cc7a3", [:mix], []},
   "triq": {:git, "https://github.com/tuncer/triq.git", "bb8a2376e687bcfb0d93671c66f98ba46a88f052", [branch: "rand19"]}}
