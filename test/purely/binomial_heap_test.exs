@@ -13,6 +13,7 @@ defmodule Purely.BinomialHeapTest do
   property "min" do
     check all xs <- list_of(integer(), min_length: 1) do
       h = BinomialHeap.new(xs)
+
       assert BinomialHeap.min(h) == Enum.min(xs)
     end
   end
@@ -20,6 +21,7 @@ defmodule Purely.BinomialHeapTest do
   property "put and sort" do
     check all xs <- list_of(integer()) do
       h = BinomialHeap.new(xs)
+
       assert BinomialHeap.sort(h) == Enum.sort(xs)
     end
   end

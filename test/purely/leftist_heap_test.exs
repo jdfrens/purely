@@ -9,6 +9,7 @@ defmodule Purely.LeftistHeapTest do
   property "new, put, and sort" do
     check all xs <- list_of(integer()) do
       h = LeftistHeap.new(xs)
+
       assert LeftistHeap.sort(h) == Enum.sort(xs)
     end
   end
@@ -18,6 +19,7 @@ defmodule Purely.LeftistHeapTest do
       h = LeftistHeap.new(xs)
       spine_length = BinaryTree.length_right_spine(h)
       max_spine_length = :math.log2(length(xs) + 1)
+
       assert spine_length <= max_spine_length
     end
   end
@@ -28,6 +30,7 @@ defmodule Purely.LeftistHeapTest do
       xh = LeftistHeap.new(xs)
       yh = LeftistHeap.new(ys)
       h = LeftistHeap.merge(xh, yh)
+
       assert LeftistHeap.sort(h) == Enum.sort(xs ++ ys)
     end
   end
