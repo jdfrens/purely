@@ -19,7 +19,7 @@ defmodule Purely.Mixfile do
   defp deps do
     [
       {:credo, "~> 1.4.0", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.1.0", only: [:dev, :test]},
+      {:dialyxir, "~> 1.2.0", only: [:dev, :test]},
       {:ex_doc, "~> 0.18", only: :dev},
       {:stream_data, "~> 0.1", only: :test}
     ]
